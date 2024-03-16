@@ -7,7 +7,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 300M
+          memory: 500M
     healthcheck:
       test: ["CMD", "curl", "-I", "http://config-server:8888"]
       interval: 5s
@@ -22,7 +22,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 300M
+          memory: 500M
     healthcheck:
       test: ["CMD", "curl", "-f", "http://discovery-server:8761"]
       interval: 5s
@@ -40,12 +40,20 @@ services:
     deploy:
       resources:
         limits:
-          memory: 300M
+          memory: 500M
     environment:
       - MYSQL_ROOT_PASSWORD=petclinic
       - MYSQL_DATABASE=petclinic
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=petclinic
+    volumes:
+      - ./spring-petclinic-customers-service/src/main/resources/db/mysql/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - ./spring-petclinic-customers-service/src/main/resources/db/mysql/data.sql:/docker-entrypoint-initdb.d/2-data.sql
+
+      - ./spring-petclinic-visits-service/src/main/resources/db/mysql/schema.sql:/docker-entrypoint-initdb.d/3-schema.sql
+      - ./spring-petclinic-visits-service/src/main/resources/db/mysql/data.sql:/docker-entrypoint-initdb.d/4-data.sql
+
+      - ./spring-petclinic-vets-service/src/main/resources/db/mysql/schema.sql:/docker-entrypoint-initdb.d/5-schema.sql
+      - ./spring-petclinic-vets-service/src/main/resources/db/mysql/data.sql:/docker-entrypoint-initdb.d/6-data.sql
+
     depends_on:
       config-server:
         condition: service_healthy
@@ -60,7 +68,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 300M
+          memory: 500M
     depends_on:
       config-server:
         condition: service_healthy
@@ -75,7 +83,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 300M
+          memory: 500M
     depends_on:
       config-server:
         condition: service_healthy
@@ -90,7 +98,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 300M
+          memory: 500M
     depends_on:
       config-server:
         condition: service_healthy
@@ -105,7 +113,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 300M
+          memory: 500M
     depends_on:
       config-server:
         condition: service_healthy
@@ -120,7 +128,7 @@ services:
   #   deploy:
   #     resources:
   #       limits:
-  #         memory: 300M
+  #         memory: 400M
   #   environment:
   #     - JAVA_OPTS=-XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom
   #   ports:
@@ -132,7 +140,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 300M
+          memory: 500M
     depends_on:
       config-server:
         condition: service_healthy

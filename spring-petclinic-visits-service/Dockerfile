@@ -1,14 +1,28 @@
-# Start with a base image containing Java runtime
 FROM eclipse-temurin:17 as builder
+WORKDIR application
+ARG ARTIFACT_NAME
+COPY ${ARTIFACT_NAME}.jar application.jar
+RUN java -Djarmode=layertools -jar application.jar extract
 
-# The application's jar file
-ARG JAR_FILE=target/*.jar
 
-# Add the application's jar to the container
-ADD ${JAR_FILE} app.jar
+FROM eclipse-temurin:17
+WORKDIR application
 
-# Run the jar file 
+ARG EXPOSED_PORT
+EXPOSE ${EXPOSED_PORT}
+
+ENV SPRING_PROFILES_ACTIVE docker,mysql
+
+COPY --from=builder application/dependencies/ ./
+
+# fix for https://stackoverflow.com/questions/51115856/docker-failed-to-export-image-failed-to-create-image-failed-to-get-layer
+# (only last copy caused issue)
+# this seems to be triggered by using btrfs:
+# https://github.com/moby/moby/issues/36573
+RUN true
+COPY --from=builder application/spring-boot-loader/ ./
+RUN true
+COPY --from=builder application/snapshot-dependencies/ ./
+RUN true
+COPY --from=builder application/application/ ./
 ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
-
-# Expose the port the app runs on
-EXPOSE 8082
