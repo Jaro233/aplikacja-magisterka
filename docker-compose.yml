@@ -78,7 +78,7 @@ services:
       - 8081:8081
 
   visits-service:
-    image: springcommunity/spring-petclinic-visits-service
+    image: j4ro123/spring-petclinic-visits-service
     container_name: visits-service
     deploy:
       resources:
