@@ -4,38 +4,43 @@ database:
   username: root
   password: petclinic
 
-config-server:
+config_server:
   url: config-server.default.svc.cluster.local
   port: 8888
 
-tracing-server:
+tracing_server:
   url: tracing-server.default.svc.cluster.local
   port: 9411
 
-discovery-server:
+discovery_server:
   url: discovery-server.default.svc.cluster.local
   port: 8761
 
-microservices:
-  config-server:
-    replicaCount: 1
-    image:
-      repository: j4ro123/spring-petclinic-config-server
-      tag: latest
-    containerPort: 8888
-    service:
-      type: ClusterIP
-      port: 8888
+vets_url: vets-service.default.svc.cluster.local
+visits_url: vets-service.default.svc.cluster.local
+customers_url: vets-service.default.svc.cluster.local
+api_gateway_url: vets-service.default.svc.cluster.local
 
-  discovery-server:
-    replicaCount: 1
-    image:
-      repository: j4ro123/spring-petclinic-discovery-server
-      tag: latest
-    containerPort: 8761
-    service:
-      type: ClusterIP
-      port: 8761
+microservices:
+  # config-server:
+  #   replicaCount: 1
+  #   image:
+  #     repository: j4ro123/spring-petclinic-config-server
+  #     tag: latest
+  #   containerPort: 8888
+  #   service:
+  #     type: ClusterIP
+  #     port: 8888
+
+  # discovery-server:
+  #   replicaCount: 1
+  #   image:
+  #     repository: j4ro123/spring-petclinic-discovery-server
+  #     tag: latest
+  #   containerPort: 8761
+  #   service:
+  #     type: ClusterIP
+  #     port: 8761
 
   customers-service:
     replicaCount: 1
@@ -77,22 +82,22 @@ microservices:
       type: ClusterIP
       port: 8080
 
-  admin-server:
-    replicaCount: 1
-    image:
-      repository: j4ro123/spring-petclinic-admin-server
-      tag: latest
-    containerPort: 9090
-    service:
-      type: ClusterIP
-      port: 9090
+  # admin-server:
+  #   replicaCount: 1
+  #   image:
+  #     repository: j4ro123/spring-petclinic-admin-server
+  #     tag: latest
+  #   containerPort: 9090
+  #   service:
+  #     type: ClusterIP
+  #     port: 9090
 
-  tracing-server:
-    replicaCount: 1
-    image:
-      repository: openzipkin/zipkin
-      tag: latest
-    containerPort: 9411
-    service:
-      type: ClusterIP
-      port: 9411
+  # tracing-server:
+  #   replicaCount: 1
+  #   image:
+  #     repository: openzipkin/zipkin
+  #     tag: latest
+  #   containerPort: 9411
+  #   service:
+  #     type: ClusterIP
+  #     port: 9411
