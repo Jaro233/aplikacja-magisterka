@@ -19,3 +19,7 @@ target/
 
 # Branch switching
 generated/
+
+charts
+
+db-secret.yaml

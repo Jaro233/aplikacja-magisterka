@@ -1,0 +1,55 @@
+{{- range $name, $svc := .Values.microservices }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels:
+    app: {{ $name }}
+spec:
+  replicas: {{ $svc.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}
+    spec:
+      containers:
+        - name: {{ $name }}
+          image: "{{ $svc.image.repository }}:{{ $svc.image.tag }}"
+          resources:
+            limits:
+              memory: "512Mi"
+            requests:
+              memory: "500Mi"
+          ports:
+            - containerPort: {{ $svc.containerPort }}
+          env:
+            - name: CONFIG_SERVER_URL
+              value: {{ quote $.Values.config-server.url }}
+            - name: CONFIG_SERVER_PORT
+              value: {{ quote $.Values.config-server.port }}
+            - name: TRACING_SERVER_URL
+              value: {{ quote $.Values.tracing-server.url }}
+            - name: TRACING_SERVER_PORT
+              value: {{ quote $.Values.tracing-server.port }}
+            - name: DISCOVERY_SERVER_URL
+              value: {{ quote $.Values.discovery-server.url }}
+            - name: DISCOVERY_SERVER_PORT
+              value: {{ quote $.Values.discovery-server.port }}
+          {{- if or (eq $name "customers-service") (eq $name "visits-service") (eq $name "vets-service") }}
+            - name: MYSQL_HOST
+              value: {{ quote $.Values.database.url }}
+            - name: MYSQL_PORT
+              value: {{ quote $.Values.database.port }}
+            - name: MYSQL_USER
+              value: {{ quote $.Values.database.username }}
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-password-secret
+                  key: password
+          {{- end }}
+{{- end }}

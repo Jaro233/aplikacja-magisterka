@@ -1,0 +1,16 @@
+{{- range $name, $svc := .Values.microservices }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+spec:
+  type: {{ $svc.service.type }}
+  ports:
+    - port: {{ $svc.service.port }}
+      targetPort: {{ $svc.containerPort }}
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ $name }}
+{{- end }}
