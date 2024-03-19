@@ -22,4 +22,4 @@ generated/
 
 charts
 
-db-secret.yaml
+*secret.yaml
