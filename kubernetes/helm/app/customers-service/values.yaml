@@ -1,0 +1,25 @@
+database:
+  uri: mysql.spring-petclinic.svc.cluster.local
+  port: 3306
+  username: root
+  password:
+    secret: db-password-secret
+    key: password
+
+microservice:
+  name: customers-service
+  namespace: spring-petclinic
+  replicaCount: 1
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 1Gi
+  uri: customers-service.spring-petclinic.svc.cluster.local
+  image:
+    repository: j4ro123/spring-petclinic-cloud-customers-service
+    tag: latest
+  containerPort: 8080
+  service:
+    type: ClusterIP
+    port: 8081

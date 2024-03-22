@@ -1,0 +1,7 @@
+admin:
+  ## Name of the secret. Can be templated.
+  existingSecret: "grafana-secret"
+  userKey: username
+  passwordKey: password
+
+namespaceOverride: "monitoring"
