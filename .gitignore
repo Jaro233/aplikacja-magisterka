@@ -23,3 +23,6 @@ generated/
 charts
 
 *secret.yaml
+
+node_modules
+videos
