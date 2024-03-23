@@ -4,11 +4,11 @@ on:
   push:
     branches: [master]
     paths:
-      - spring-petclinic-vets-service/**
+      - ./spring-petclinic-vets-service/**
   pull_request:
     branches: [master]
     paths:
-      - spring-petclinic-vets-service/**
+      - ./spring-petclinic-vets-service/**
 
 env:
   # Credentials for AWS
