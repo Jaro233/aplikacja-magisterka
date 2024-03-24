@@ -97,7 +97,7 @@ jobs:
           mvn -B verify -f ${{env.APP_PATH}}/pom.xml org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
           -Dsonar.projectKey=${{env.SONAR_PROJECT_KEY}} \
           -Dsonar.organization=jaro233 \
-          -Dsonar.sources=${{env.APP_PATH}}/src \
+          -Dsonar.sources=/home/runner/work/aplikacja-magisterka/aplikacja-magisterka/spring-petclinic-api-gateway/src \
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.login=${{ env.SONAR_TOKEN }} \
           -Dsonar.dependencyCheck.reportPath=reports/dependency-check-report.xml
