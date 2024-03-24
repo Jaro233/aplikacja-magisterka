@@ -210,7 +210,8 @@ jobs:
         run: |
           helm upgrade ${{ env.APP_NAME_SHORT }} ./kubernetes/helm/app/${{ env.APP_NAME_SHORT }} \
             --reuse-values \
-            --set microservice.image.tag=1.32 microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}
+            --set microservice.image.tag=1.32 \
+            --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}
   # --set microservice.image.tag=1.${{ github.run_number }}
   zap-scan:
     runs-on: ubuntu-latest
