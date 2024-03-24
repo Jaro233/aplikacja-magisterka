@@ -242,4 +242,4 @@ jobs:
           wait-on-timeout: 10
           config: video=false
           browser: chrome
-          config-file: cypress/cypress.json
+          working-directory: cypress
