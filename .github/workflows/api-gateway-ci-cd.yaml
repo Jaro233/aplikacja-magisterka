@@ -138,7 +138,7 @@ jobs:
         run: |
           docker build \
           -t ${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}:1.${{ github.run_number }} \
-          --build-arg ARTIFACT_NAME=${{env.APP_PATH}}/target/${{env.APP_NAME_SHORT}} \
+          --build-arg ARTIFACT_NAME=${{env.APP_PATH}}/target/${{env.APP_NAME_SHORT}}-2.6.3 \
           --build-arg DOCKERIZE_VERSION=v0.7.0 \
           --build-arg EXPOSED_PORT=8080 \
           ./docker
