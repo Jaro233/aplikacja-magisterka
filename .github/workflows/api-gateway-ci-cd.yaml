@@ -14,7 +14,7 @@ on:
 
 env:
   # spring-petclinic-api-gateway path and name
-  APP_PATH: ./spring-petclinic-api-gateway
+  APP_PATH: spring-petclinic-api-gateway
   APP_NAME: spring-petclinic-api-gateway
   APP_NAME_SHORT: api-gateway
   SONAR_PROJECT_KEY: jaro233_spring-petclinic-api-gateway
@@ -89,9 +89,6 @@ jobs:
           name: dependency-check-report
           path: ${{env.APP_PATH}}/reports/dependency-check-report.html
 
-      - name: Go to service directory
-        run: cd ${{env.APP_PATH}}
-
       - name: Run SonarCloud analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -100,6 +97,8 @@ jobs:
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=${{env.SONAR_PROJECT_KEY}} \
             -Dsonar.organization=jaro233 \
+            -Dsonar.sources=${{env.APP_PATH}}/src \
+            -Dsonar.tests=${{env.APP_PATH}}/src \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=${{ env.SONAR_TOKEN }} \
             -Dsonar.dependencyCheck.reportPath=${{env.APP_PATH}}/reports/dependency-check-report.xml
