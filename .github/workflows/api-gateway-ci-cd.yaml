@@ -153,6 +153,23 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR Private
+        id: login-ecr-private
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: private
+
+      - name: Verify image was pushed
+        run: |
+          aws ecr describe-images --repository-name ${{env.ECR_REPO_NAME}} --image-ids imageTag=1.${{ github.run_number }}
+
       - name: Scan the Docker image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
