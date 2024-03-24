@@ -18,6 +18,8 @@ env:
   APP_NAME: spring-petclinic-api-gateway
   APP_NAME_SHORT: api-gateway
   SONAR_PROJECT_KEY: jaro233_spring-petclinic-api-gateway
+  # ecr repo
+  ECR_REPO_NAME: my-ecr
 
 jobs:
   # setup:
@@ -105,7 +107,7 @@ jobs:
   build_and_push:
     runs-on: ubuntu-latest
     outputs:
-      ecr-registry: ${{ steps.login-ecr-public.outputs.registry }}
+      ecr-registry: ${{ steps.login-ecr-private.outputs.registry }}
     # needs: code_quality_and_security_scanning
     steps:
       - name: Check out repository code
@@ -132,23 +134,21 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Login to Amazon ECR Public
-        id: login-ecr-public
+      - name: Login to Amazon ECR Private
+        id: login-ecr-private
         uses: aws-actions/amazon-ecr-login@v2
         with:
-          registry-type: public
+          registry-type: private
 
-      - name: Build and push Docker image to ECR
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ./docker/Dockerfile
-          build-args: |
-            ARTIFACT_NAME=${{env.APP_PATH}}/target/${{env.APP_NAME_SHORT}}
-            DOCKERIZE_VERSION=v0.7.0
-            EXPOSED_PORT=8080
-          tags: ${{ steps.login-ecr-public.outputs.registry }}/${{env.APP_NAME}}:1.${{ github.run_number }}
-          push: true
+      - name: Build, tag, and push image to Amazon ECR
+        run: |
+          docker build \
+          -t ${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}:1.${{ github.run_number }} \
+          --build-arg ARTIFACT_NAME=${{env.APP_PATH}}/target/${{env.APP_NAME_SHORT}} \
+          --build-arg  DOCKERIZE_VERSION=v0.7.0 \
+          --build-arg EXPOSED_PORT=8080 \
+          ../docker
+          docker push ${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}:1.${{ github.run_number }}
 
   docker_image_scanning:
     runs-on: ubuntu-latest
