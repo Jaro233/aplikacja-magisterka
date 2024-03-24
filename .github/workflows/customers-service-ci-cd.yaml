@@ -4,17 +4,13 @@ on:
   push:
     branches: [master]
     paths:
-      - ./spring-petclinic-customers-service/**
+      - spring-petclinic-customers-service/**
   pull_request:
     branches: [master]
     paths:
-      - ./spring-petclinic-customers-service/**
+      - spring-petclinic-customers-service/**
 
 env:
-  # Credentials for AWS
-  AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_REGION: ${{ secrets.AWS_REGION }}
   # spring-petclinic-customers-service path and name
   APP_PATH: ./spring-petclinic-cloud-customers-service
   APP_NAME: spring-petclinic-cloud-customers-service
@@ -92,6 +88,7 @@ jobs:
           args: >
             -Dsonar.projectKey=${{env.APP_NAME}}
             -Dsonar.organization=jaro233
+            -Dsonar.sources=${{env.APP_PATH}}
             -Dsonar.dependencyCheck.reportPath=${{env.APP_PATH}}/reports/dependency-check-report.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -99,6 +96,8 @@ jobs:
 
   build_and_push:
     runs-on: ubuntu-latest
+    outputs:
+      ecr-registry: ${{ steps.login-ecr-public.outputs.registry }}
     needs: code_quality_and_security_scanning
     steps:
       - name: Check out repository code
@@ -121,9 +120,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ env.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR Public
         id: login-ecr-public
@@ -138,7 +137,7 @@ jobs:
           file: ../docker/Dockerfile
           build-args: |
             - ARTIFACT_NAME=${{env.APP_NAME_SHORT}}
-            - DOCKERIZE_VERSION=0.7.0
+            - DOCKERIZE_VERSION=v0.7.0
             - EXPOSED_PORT=8080
           tags: ${{ steps.login-ecr-public.outputs.registry }}/${{env.APP_NAME}}:1.${{ github.run_number }}
           push: true
@@ -153,7 +152,7 @@ jobs:
       - name: Scan the Docker image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ steps.login-ecr-public.outputs.registry }}/${{env.APP_NAME}}:1.${{ github.run_number }}
+          image-ref: ${{ needs.build_and_push.outputs.ecr-registry }}/${{env.APP_NAME}}:1.${{ github.run_number }}
           format: "table"
           exit-code: "1"
           ignore-unfixed: true
@@ -170,9 +169,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ env.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Install Helm
         run: |
@@ -182,7 +181,7 @@ jobs:
 
       - name: Set up Kubeconfig
         run: |
-          aws eks update-kubeconfig --name ${{secrets.CLUSTER_NAME}}
+          aws eks update-kubeconfig --name ${{ secrets.CLUSTER_NAME }}
 
       - name: Upgrade Application with Helm
         run: |

@@ -38,13 +38,13 @@ helm ${action_helm} visits-service helm/app/visits-service
 echo "Deploying ingress and clusterissuer resources in init-ingress-and-clusterissuer directory..."
 kubectl ${action_kubectl}  -f init-ingress-and-clusterissuer/
 
-# Deploy monitoring
-helm ${action_helm} prometheus prometheus-community/prometheus -f helm/monitoring/prometheus/values.yaml
-helm ${action_helm} grafana grafana/grafana -f helm/monitoring/grafana/values.yaml
+# # Deploy monitoring
+# helm ${action_helm} prometheus prometheus-community/prometheus -f helm/monitoring/prometheus/values.yaml
+# helm ${action_helm} grafana grafana/grafana -f helm/monitoring/grafana/values.yaml
 
-# Deploy logging
-helm ${action_helm} elasticsearch bitnami/elasticsearch -f helm/logging/elasticsearch/values.yaml
-helm ${action_helm} fluentbit helm/logging/fluentbit
-helm ${action_helm} kibana bitnami/kibana -f helm/logging/kibana/values.yaml -n logging
+# # Deploy logging
+# helm ${action_helm} elasticsearch bitnami/elasticsearch -f helm/logging/elasticsearch/values.yaml
+# helm ${action_helm} fluentbit helm/logging/fluentbit
+# helm ${action_helm} kibana bitnami/kibana -f helm/logging/kibana/values.yaml -n logging
 
 echo "Deployment completed."
