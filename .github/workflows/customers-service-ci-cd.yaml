@@ -12,8 +12,8 @@ on:
 
 env:
   # spring-petclinic-customers-service path and name
-  APP_PATH: ./spring-petclinic-cloud-customers-service
-  APP_NAME: spring-petclinic-cloud-customers-service
+  APP_PATH: ./spring-petclinic-customers-service
+  APP_NAME: spring-petclinic-customers-service
   APP_NAME_SHORT: customers-service
 
 jobs:

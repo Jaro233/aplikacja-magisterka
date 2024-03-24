@@ -14,8 +14,8 @@ on:
 
 env:
   # spring-petclinic-api-gateway path and name
-  APP_PATH: ./spring-petclinic-cloud-api-gateway
-  APP_NAME: spring-petclinic-cloud-api-gateway
+  APP_PATH: ./spring-petclinic-api-gateway
+  APP_NAME: spring-petclinic-api-gateway
   APP_NAME_SHORT: api-gateway
 
 jobs:

@@ -16,8 +16,8 @@ env:
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_REGION: ${{ secrets.AWS_REGION }}
   # spring-petclinic-visits-service path and name
-  APP_PATH: ./spring-petclinic-cloud-visits-service
-  APP_NAME: spring-petclinic-cloud-visits-service
+  APP_PATH: ./spring-petclinic-visits-service
+  APP_NAME: spring-petclinic-visits-service
   APP_NAME_SHORT: visits-service
 
 jobs:
