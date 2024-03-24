@@ -97,6 +97,7 @@ jobs:
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=${{env.SONAR_PROJECT_KEY}} \
             -Dsonar.organization=jaro233 \
+            -Dsonar.sources=${{env.APP_PATH}}/src \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=${{ env.SONAR_TOKEN }} \
             -Dsonar.dependencyCheck.reportPath=${{env.APP_PATH}}/reports/dependency-check-report.xml
@@ -141,7 +142,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ../docker/Dockerfile
+          file: ./docker/Dockerfile
           build-args: |
             - ARTIFACT_NAME=${{env.APP_NAME_SHORT}}
             - DOCKERIZE_VERSION=v0.7.0
