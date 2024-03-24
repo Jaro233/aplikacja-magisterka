@@ -2,11 +2,13 @@ name: api-gateway CI/CD Pipeline
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
       - spring-petclinic-api-gateway/**
   pull_request:
-    branches: [main]
+    branches:
+      - main
     paths:
       - spring-petclinic-api-gateway/**
 
