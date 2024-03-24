@@ -233,11 +233,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Go to cypress directory
-        run: cd cypress
-
       - name: Install Dependencies
-        run: npm install
+        run: cd cypress && npm install
 
       - name: Cypress run
         uses: cypress-io/github-action@v6
@@ -245,3 +242,4 @@ jobs:
           wait-on-timeout: 10
           config: video=false
           browser: chrome
+          config-file: cypress/cypress.json
