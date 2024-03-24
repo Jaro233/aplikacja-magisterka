@@ -2,11 +2,11 @@ name: vets-service CI/CD Pipeline
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
       - spring-petclinic-vets-service/**
   pull_request:
-    branches: [master]
+    branches: [main]
     paths:
       - spring-petclinic-vets-service/**
 

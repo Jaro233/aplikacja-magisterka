@@ -2,11 +2,11 @@ name: customers-service CI/CD Pipeline
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
       - spring-petclinic-customers-service/**
   pull_request:
-    branches: [master]
+    branches: [main]
     paths:
       - spring-petclinic-customers-service/**
 

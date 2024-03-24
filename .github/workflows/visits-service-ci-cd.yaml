@@ -2,11 +2,11 @@ name: visits-service CI/CD Pipeline
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
       - spring-petclinic-visits-service/**
   pull_request:
-    branches: [master]
+    branches: [main]
     paths:
       - spring-petclinic-visits-service/**
 
