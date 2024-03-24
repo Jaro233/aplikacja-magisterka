@@ -4,11 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      - spring-petclinic-api-gateway/**
+      - /spring-petclinic-api-gateway/**
   pull_request:
     branches: [main]
     paths:
-      - spring-petclinic-api-gateway/**
+      - /spring-petclinic-api-gateway/**
 
 env:
   # spring-petclinic-api-gateway path and name
