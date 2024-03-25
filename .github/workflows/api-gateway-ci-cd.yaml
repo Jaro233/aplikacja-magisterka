@@ -209,7 +209,7 @@ jobs:
       - name: Upgrade Application with Helm for Blue-Green Deployment
         run: |
           # Set which color is currently live
-          LIVE_COLOR=$(kubectl get svc ${{ env.APP_NAME_SHORT }} -o jsonpath='{.spec.selector.color}')
+          LIVE_COLOR=$(kubectl get svc ${{ env.APP_NAME_SHORT }} -o jsonpath='{.spec.selector.color}') -n spring-petclinic
 
           # Determine the new color for deployment
           if [ "$LIVE_COLOR" = "blue" ]; then
@@ -229,7 +229,7 @@ jobs:
           helm test ${{ env.APP_NAME_SHORT }}
 
           # Update the service selector to switch to the new version
-          kubectl patch svc ${{ env.APP_NAME_SHORT }} -p "{\"spec\": {\"selector\": {\"color\": \"${NEW_COLOR}\"}}}"
+          kubectl patch svc ${{ env.APP_NAME_SHORT }} -p "{\"spec\": {\"selector\": {\"color\": \"${NEW_COLOR}\"}}}" -n spring-petclinic
 
   # The rest of your deployment script here, including cleanup of the old version if desired
 
