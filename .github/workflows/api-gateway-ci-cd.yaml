@@ -209,7 +209,7 @@ jobs:
       - name: Upgrade Application with Helm for Blue-Green Deployment
         run: |
           # Set which color is currently live
-          LIVE_COLOR=$(kubectl get svc ${{ env.APP_NAME_SHORT }} -o jsonpath='{.spec.selector.color}') -n spring-petclinic
+          LIVE_COLOR=$(kubectl get svc ${{ env.APP_NAME_SHORT }} -o jsonpath='{.spec.selector.color}' -n spring-petclinic) 
 
           # Determine the new color for deployment
           if [ "$LIVE_COLOR" = "blue" ]; then
