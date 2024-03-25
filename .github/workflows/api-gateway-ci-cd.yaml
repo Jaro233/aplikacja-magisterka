@@ -221,9 +221,8 @@ jobs:
           # Deploy the new color
           helm upgrade ${{ env.APP_NAME_SHORT }} ./kubernetes/helm/app/${{ env.APP_NAME_SHORT }} \
             --install \
-            --values ./kubernetes/helm/app/values-${NEW_COLOR}.yaml \
-            --set microservice.image.tag=1.${{ github.run_number }} \
-            --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}
+            --values ./kubernetes/helm/app/${{ env.APP_NAME_SHORT }}/values-${NEW_COLOR}.yaml \
+
 
           # Wait for the new version to be ready (example uses helm test, but customize as needed)
           helm test ${{ env.APP_NAME_SHORT }}
@@ -232,6 +231,9 @@ jobs:
           kubectl patch svc ${{ env.APP_NAME_SHORT }} -p "{\"spec\": {\"selector\": {\"color\": \"${NEW_COLOR}\"}}}" -n spring-petclinic
 
   # The rest of your deployment script here, including cleanup of the old version if desired
+
+  # --set microservice.image.tag=1.${{ github.run_number }} \
+  # --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}
 
   # --set microservice.image.tag=1.${{ github.run_number }}
   zap-scan:
