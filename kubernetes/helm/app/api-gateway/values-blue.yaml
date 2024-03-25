@@ -2,6 +2,7 @@ microservice:
   name: api-gateway
   namespace: spring-petclinic
   replicaCount: 1
+  color: blue
   resources:
     limits:
       memory: 1Gi

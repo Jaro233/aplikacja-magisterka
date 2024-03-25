@@ -1,0 +1,18 @@
+microservice:
+  name: api-gateway
+  namespace: spring-petclinic
+  replicaCount: 1
+  color: blue
+  resources:
+    limits:
+      memory: 1Gi
+    requests:
+      memory: 1Gi
+  uri: api-gateway.spring-petclinic.svc.cluster.local
+  image:
+    repository: j4ro123/spring-petclinic-cloud-api-gateway
+    tag: latest
+  containerPort: 8080
+  service:
+    type: ClusterIP
+    port: 8080

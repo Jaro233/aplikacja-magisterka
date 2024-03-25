@@ -12,3 +12,4 @@ spec:
       name: http
   selector:
     app: {{.Values.microservice.name}}
+    color: {{.Values.microservice.color}}

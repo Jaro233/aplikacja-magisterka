@@ -1,7 +1,7 @@
 {
   "testFiles": "**/*.feature",
   "projectId": "v2g5jw",
-  "baseUrl": "https://petclinic.devopshub.org",
+  "baseUrl": "https://petclinic111.devopshub.org",
   "reporter": "cypress-multi-reporters",
   "reporterOptions": {
     "reporterEnabled": "mochawesome",

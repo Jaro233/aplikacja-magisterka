@@ -1,15 +1,11 @@
 class HomePage {
-
   elements = {
+    homePageTitle: () => cy.get("h1"),
+  };
 
-    homePageTitle: () => cy.get('h2')
-}
-
-HomeTitleAssert() {
-    
-    this.elements.homePageTitle().should('be.visible')
+  HomeTitleAssert() {
+    this.elements.homePageTitle().should("be.visible");
   }
-
 }
 
 export default HomePage;

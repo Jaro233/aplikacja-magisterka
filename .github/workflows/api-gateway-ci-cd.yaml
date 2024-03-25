@@ -176,55 +176,76 @@ jobs:
   #         vuln-type: "os,library"
   #         severity: "CRITICAL,HIGH"
 
-  # deployment:
-  #   runs-on: ubuntu-latest
-  #   # needs: docker_image_scanning
-  #   steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v4
+  deployment:
+    runs-on: ubuntu-latest
+    # needs: docker_image_scanning
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
 
-  #     - name: Configure AWS Credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ${{ secrets.AWS_REGION }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-  #     - name: Login to Amazon ECR Private
-  #       id: login-ecr-private
-  #       uses: aws-actions/amazon-ecr-login@v2
-  #       with:
-  #         registry-type: private
+      - name: Login to Amazon ECR Private
+        id: login-ecr-private
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: private
 
-  #     - name: Install Helm
-  #       run: |
-  #         curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-  #         chmod 700 get_helm.sh
-  #         ./get_helm.sh
+      - name: Install Helm
+        run: |
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
 
-  #     - name: Set up Kubeconfig
-  #       run: |
-  #         aws eks update-kubeconfig --name ${{ secrets.CLUSTER_NAME }}
+      - name: Set up Kubeconfig
+        run: |
+          aws eks update-kubeconfig --name ${{ secrets.CLUSTER_NAME }}
 
-  #     - name: Upgrade Application with Helm
-  #       run: |
-  #         helm upgrade ${{ env.APP_NAME_SHORT }} ./kubernetes/helm/app/${{ env.APP_NAME_SHORT }} \
-  #           --reuse-values \
-  #           --set microservice.image.tag=1.33 \
-  #           --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}
-  # # --set microservice.image.tag=1.${{ github.run_number }}
-  # zap-scan:
-  #   runs-on: ubuntu-latest
-  #   needs: deployment
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
+      - name: Upgrade Application with Helm for Blue-Green Deployment
+        run: |
+          # Set which color is currently live
+          LIVE_COLOR=$(kubectl get svc ${{ env.APP_NAME_SHORT }} -o jsonpath='{.spec.selector.color}')
 
-  #     - name: ZAP Scan
-  #       uses: zaproxy/action-full-scan@v0.9.0
-  #       with:
-  #         target: "https://petclinic.devopshub.org"
-  #         allow_issue_writing: false
+          # Determine the new color for deployment
+          if [ "$LIVE_COLOR" = "blue" ]; then
+            NEW_COLOR="green"
+          else
+            NEW_COLOR="blue"
+          fi
+
+          # Deploy the new color
+          helm upgrade ${{ env.APP_NAME_SHORT }} ./kubernetes/helm/app/${{ env.APP_NAME_SHORT }} \
+            --install \
+            --values ./kubernetes/helm/app/values-${NEW_COLOR}.yaml \
+            --set microservice.image.tag=1.${{ github.run_number }} \
+            --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}
+
+          # Wait for the new version to be ready (example uses helm test, but customize as needed)
+          helm test ${{ env.APP_NAME_SHORT }}
+
+          # Update the service selector to switch to the new version
+          kubectl patch svc ${{ env.APP_NAME_SHORT }} -p "{\"spec\": {\"selector\": {\"color\": \"${NEW_COLOR}\"}}}"
+
+  # The rest of your deployment script here, including cleanup of the old version if desired
+
+  # --set microservice.image.tag=1.${{ github.run_number }}
+  zap-scan:
+    runs-on: ubuntu-latest
+    needs: deployment
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.9.0
+        with:
+          target: "https://petclinic.devopshub.org"
+          allow_issue_writing: false
 
   cypress-run:
     runs-on: ubuntu-latest
