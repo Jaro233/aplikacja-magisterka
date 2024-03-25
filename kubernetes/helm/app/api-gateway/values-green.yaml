@@ -10,7 +10,7 @@ microservice:
       memory: 1Gi
   uri: api-gateway.spring-petclinic.svc.cluster.local
   image:
-    repository: j4ro123/spring-petclinic-cloud-api-gateway
+    repository: springcommunity/spring-petclinic-cloud-api-gateway
     tag: latest
   containerPort: 8080
   service:
