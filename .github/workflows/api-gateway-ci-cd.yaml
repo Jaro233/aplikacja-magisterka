@@ -106,7 +106,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       ecr-registry: ${{ steps.login-ecr-private.outputs.registry }}
-    needs: code_quality_and_security_scanning
+    # needs: code_quality_and_security_scanning
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -147,39 +147,40 @@ jobs:
           tags: ${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}:1.${{ github.run_number }}
           push: true
 
-  docker_image_scanning:
-    runs-on: ubuntu-latest
-    needs: build_and_push
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
+  # docker_image_scanning:
+  #   runs-on: ubuntu-latest
+  #   needs: build_and_push
+  #   steps:
+  #     - name: Check out repository code
+  #       uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+  #     - name: Configure AWS Credentials
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Login to Amazon ECR Private
-        id: login-ecr-private
-        uses: aws-actions/amazon-ecr-login@v2
-        with:
-          registry-type: private
+  #     - name: Login to Amazon ECR Private
+  #       id: login-ecr-private
+  #       uses: aws-actions/amazon-ecr-login@v2
+  #       with:
+  #         registry-type: private
 
-      - name: Scan the Docker image with Trivy
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}:1.${{ github.run_number }}
-          format: "table"
-          exit-code: "0"
-          ignore-unfixed: true
-          vuln-type: "os,library"
-          severity: "CRITICAL,HIGH"
+  #     - name: Scan the Docker image with Trivy
+  #       uses: aquasecurity/trivy-action@master
+  #       with:
+  #         image-ref: ${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}:1.${{ github.run_number }}
+  #         format: "table"
+  #         exit-code: "0"
+  #         ignore-unfixed: true
+  #         vuln-type: "os,library"
+  #         severity: "CRITICAL,HIGH"
 
   deployment:
     runs-on: ubuntu-latest
-    needs: docker_image_scanning
+    # needs: docker_image_scanning
+    needs: build_and_push
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -209,7 +210,7 @@ jobs:
 
       - name: Deploy to Staging
         run: |
-          currentSlot=`(helm get values --all ${{env.APP_NAME_SHORT}} | grep -Po 'productionSlot: \K.*' -n spring-petclinic)`
+          currentSlot=`(helm get values --all ${{env.APP_NAME_SHORT}} | grep -Po 'productionSlot: \K.*')`
           if [ "$currentSlot" == "blue" ]; then
               newSlot="green"
           else

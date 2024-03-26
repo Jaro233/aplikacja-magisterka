@@ -1,12 +1,12 @@
 describe("PetClinic Veterinaries Check", () => {
   it("successfully see the veterinaries", () => {
     // Step 1: Visit the homepage
-    cy.visit("http://localhost:8080");
+    cy.visit("https://prod.devopshub.org/");
 
-    // Step 2: Navigate to the Add New Pet form
+    // Step 2: Navigate to Veterinaries page
     // This step depends on the structure of your application.
     // For instance, if there's a link to the form:
-    cy.contains("Add New Pet").click(); // Adjust based on the actual text/link
+    cy.xpath("//body/layout-nav[1]/nav[1]/div[2]/ul[1]/li[3]/a[1]").click(); // Adjust based on the actual text/link
 
     // Step 3: Fill in the form
     // Replace the selectors with the actual form field identifiers
