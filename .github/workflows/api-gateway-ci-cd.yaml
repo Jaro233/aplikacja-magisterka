@@ -210,7 +210,7 @@ jobs:
 
       - name: Deploy to Staging
         run: |
-          currentSlot=`(helm get values --all ${{env.APP_NAME_SHORT}} | grep -Po '  productionSlot: \K.*')`
+          currentSlot=`(helm get values --all ${{env.APP_NAME_SHORT}} | grep -Po 'productionSlot: \K.*')`
           if [ "$currentSlot" == "blue" ]; then
               newSlot="green"
           else
