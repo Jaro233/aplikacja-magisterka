@@ -210,15 +210,10 @@ jobs:
 
       - name: Deploy to Staging
         run: |
-          currentSlot=`(helm get values --all ${{env.APP_NAME_SHORT}} | grep -Po 'productionSlot: \K.*')`
-          if [ "$currentSlot" == "blue" ]; then
-              newSlot="green"
-          else
-              newSlot="blue"
-          fi
-          deploymentOption="$newSlot.enabled=true"
+          bash scripts/checkSlot.sh
+          export deploymentOption=$newSlot.enabled=true
           helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/api-gateway \
-          --set "$deploymentOption" \
+          --set $deploymentOption \
           --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}
           --set microservice.image.tag=1.${{ github.run_number }} \
           --reuse-values
@@ -255,18 +250,18 @@ jobs:
       - name: Swap Production to New Version
         if: success() # Only proceed if tests pass
         run: |
-          deploymentOption="productionSlot=$newSlot"
+          deploymentOption=productionSlot=$newSlot
           helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/api-gateway \
-          --set "$deploymentOption" \
+          --set $deploymentOption \
           --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}
           --set microservice.image.tag=1.${{ github.run_number }} \
           --reuse-values
 
       - name: Cleanup Old slot
         run: |
-          deploymentOption="$newSlot.enabled=false"
+          deploymentOption=$newSlot.enabled=false
           helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/api-gateway \
-          --set "$deploymentOption" \
+          --set $deploymentOption \
           --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}
           --set microservice.image.tag=1.${{ github.run_number }} \
           --reuse-values
