@@ -220,60 +220,29 @@ jobs:
           echo $deploymentOption
           helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/api-gateway --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
 
-      - name: Manual Approval
-        uses: actions/github-script@v3
+      - name: Manual aprroval
+        uses: trstringer/manual-approval@v1
         with:
-          script: |
-            const issue = await github.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: 'Deployment Approval',
-              body: `Please review the deployment in the $NEW_SLOT slot and approve.`,
-              labels: ['deployment-approval']
-            });
-            console.log(`Created issue ${issue.data.html_url}`);
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      # This step waits for a manual trigger to continue.
-      # It's crucial for production deployments where manual verification might be needed.
-      - name: Wait for Manual Approval
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const issueNumber = 1
-            await github.issues.waitForIssue({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              state: 'closed'
-            });
+          secret: ${{ github.TOKEN }}
+          approvers: user1,user2,org-team1
+          minimum-approvals: 1
+          issue-title: "Deploying ${{env.APP_NAME_SHORT}} v1.${{ github.run_number }} to prod from staging"
+          issue-body: "Please approve or deny the deployment of version v1.${{ github.run_number }}"
+          exclude-workflow-initiator-as-approver: false
+          additional-approved-words: ""
+          additional-denied-words: ""
 
       - name: Swap Production to New Version
         if: success() # Only proceed if tests pass
         run: |
           deploymentOption=productionSlot=$newSlot
-          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/api-gateway \
-          --set $deploymentOption \
-          --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}
-          --set microservice.image.tag=1.${{ github.run_number }} \
-          --reuse-values
+          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/api-gateway --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
 
       - name: Cleanup Old slot
         run: |
           deploymentOption=$newSlot.enabled=false
-          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/api-gateway \
-          --set $deploymentOption \
-          --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}
-          --set microservice.image.tag=1.${{ github.run_number }} \
-          --reuse-values
+          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/api-gateway --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
 
-  # The rest of your deployment script here, including cleanup of the old version if desired
-
-  # --set microservice.image.tag=1.${{ github.run_number }} \
-  # --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}
-
-  # --set microservice.image.tag=1.${{ github.run_number }}
   zap-scan:
     runs-on: ubuntu-latest
     needs: deployment
