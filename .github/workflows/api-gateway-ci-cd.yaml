@@ -214,14 +214,16 @@ jobs:
         run: |
           currentSlot=`(helm get values --all ${{env.APP_NAME_SHORT}} | grep -Po 'productionSlot: \K.*')`
           if [ "$currentSlot" == "blue" ]; then
-              export oldSlot="blue"
-              export newSlot="green"
+              oldSlot="blue"
+              newSlot="green"
           else
-              export oldSlot="green"
-              export newSlot="blue"
+              oldSlot="green"
+              newSlot="blue"
           fi
-          export deploymentOption=$newSlot.enabled=true
+          deploymentOption=$newSlot.enabled=true
           echo $deploymentOption
+          echo "oldSlot=$oldSlot" >> $GITHUB_ENV
+          echo "newSlot=$newSlot" >> $GITHUB_ENV
           helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/api-gateway --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
 
       - name: Manual aprroval
@@ -239,13 +241,13 @@ jobs:
       - name: Swap Production to New Version
         if: success() # Only proceed if tests pass
         run: |
-          export deploymentOption=productionSlot=$newSlot
+          deploymentOption=productionSlot=$newSlot
           echo $deploymentOption
           helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/api-gateway --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
 
       - name: Cleanup Old slot
         run: |
-          export deploymentOption=$oldSlot.enabled=false
+          deploymentOption=$oldSlot.enabled=false
           echo $deploymentOption
           helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/api-gateway --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
 
