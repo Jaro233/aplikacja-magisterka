@@ -216,13 +216,12 @@ jobs:
           else
               newSlot="blue"
           fi
-          echo "NEW_SLOT=newSlot" >> $GITHUB_ENV
           deploymentOption=$newSlot.enabled=true
           helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/api-gateway \
-          --reuse-values \
           --set $deploymentOption \
           --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}
-          --set microservice.image.tag=1.${{ github.run_number }}
+          --set microservice.image.tag=1.${{ github.run_number }} \
+          --reuse-values
 
       - name: Manual Approval
         uses: actions/github-script@v3
@@ -256,21 +255,21 @@ jobs:
       - name: Swap Production to New Version
         if: success() # Only proceed if tests pass
         run: |
-          deploymentOption=productionSlot=$NEW_SLOT
+          deploymentOption=productionSlot=$newSlot
           helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/api-gateway \
-          --reuse-values \
           --set $deploymentOption \
           --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}
-          --set microservice.image.tag=1.${{ github.run_number }}
+          --set microservice.image.tag=1.${{ github.run_number }} \
+          --reuse-values
 
       - name: Cleanup Old slot
         run: |
-          deploymentOption=$NEW_SLOT.enabled=false
+          deploymentOption=$newSlot.enabled=false
           helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/api-gateway \
-          --reuse-values \
           --set $deploymentOption \
           --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}
-          --set microservice.image.tag=1.${{ github.run_number }}
+          --set microservice.image.tag=1.${{ github.run_number }} \
+          --reuse-values
 
   # The rest of your deployment script here, including cleanup of the old version if desired
 
