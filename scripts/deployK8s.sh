@@ -29,7 +29,7 @@ helm install ingress-nginx ingress-nginx/ingress-nginx --set controller.replicaC
 
 # Deploy microservices
 echo "Deploying app..."
-helm ${action_helm} api-gateway helm/app/api-gateway
+helm ${action_helm} api-gateway helm/app/api-gateway --set blue.enabled=true
 helm ${action_helm} customers-service helm/app/customers-service
 helm ${action_helm} vets-service helm/app/vets-service
 helm ${action_helm} visits-service helm/app/visits-service

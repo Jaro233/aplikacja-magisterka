@@ -9,17 +9,27 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: "petclinic111.devopshub.org"
+    - host: "prod.devopshub.org"
       http:
         paths:
           - pathType: Prefix
             path: /
             backend:
               service:
-                name: api-gateway
+                name: api-gateway-prod
+                port:
+                  number: 8080 # use appropriate port
+    - host: "stage.devopshub.org"
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: api-gateway-stage
                 port:
                   number: 8080 # use appropriate port
   tls:
     - hosts:
-        - petclinic111.devopshub.org
+        - "*.devopshub.org"
       secretName: spring-petclinic

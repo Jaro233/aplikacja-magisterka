@@ -1,7 +1,8 @@
+{{ if .Values.green.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{.Values.microservice.name}}
+  name: {{.Values.microservice.name}}-green
   labels:
     app: {{.Values.microservice.name}}
   namespace: {{.Values.microservice.namespace}}
@@ -14,6 +15,7 @@ spec:
     metadata:
       labels:
         app: {{.Values.microservice.name}}
+        slot: green
     spec:
       containers:
         - name: {{.Values.microservice.name}}
@@ -28,3 +30,4 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: kubernetes
+{{ end }}
