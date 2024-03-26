@@ -218,11 +218,7 @@ jobs:
           fi
           export deploymentOption=$newSlot.enabled=true
           echo $deploymentOption
-          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/api-gateway \
-          --set $deploymentOption \
-          --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}
-          --set microservice.image.tag=1.${{ github.run_number }} \
-          --reuse-values
+          helm upgrade ${{env.APP_NAME_SHORT}} --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
 
       - name: Manual Approval
         uses: actions/github-script@v3
