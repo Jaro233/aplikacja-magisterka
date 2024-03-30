@@ -57,7 +57,7 @@ data:
             enabled: true
 
     customers-service-id: http://customers-service.spring-petclinic.svc.cluster.local:8081
-    visits-service-id: http://vists-service.spring-petclinic.svc.cluster.local:8082
+    visits-service-id: http://visits-service.spring-petclinic.svc.cluster.local:8082
 
     spring:
       datasource:

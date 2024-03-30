@@ -1,46 +1,13 @@
-version: "3"
+version: "2"
 
 services:
-  config-server:
-    image: j4ro123/spring-petclinic-config-server
-    container_name: config-server
-    deploy:
-      resources:
-        limits:
-          memory: 500M
-    healthcheck:
-      test: ["CMD", "curl", "-I", "http://config-server:8888"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-    ports:
-      - 8888:8888
-
-  discovery-server:
-    image: j4ro123/spring-petclinic-discovery-server
-    container_name: discovery-server
-    deploy:
-      resources:
-        limits:
-          memory: 500M
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://discovery-server:8761"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    depends_on:
-      config-server:
-        condition: service_healthy
-    ports:
-      - 8761:8761
-
   mysql:
     image: mysql:5.7.8
     container_name: mysql
     deploy:
       resources:
         limits:
-          memory: 500M
+          memory: 1000M
     environment:
       - MYSQL_ROOT_PASSWORD=petclinic
       - MYSQL_DATABASE=petclinic
@@ -54,119 +21,81 @@ services:
       - ./spring-petclinic-vets-service/src/main/resources/db/mysql/schema.sql:/docker-entrypoint-initdb.d/5-schema.sql
       - ./spring-petclinic-vets-service/src/main/resources/db/mysql/data.sql:/docker-entrypoint-initdb.d/6-data.sql
 
-    depends_on:
-      config-server:
-        condition: service_healthy
-      discovery-server:
-        condition: service_healthy
     ports:
       - 3306:3306
+  config-server:
+    image: j4ro123/spring-petclinic-cloud-config-server
+    container_name: config-server
+    mem_limit: 1000M
+    ports:
+      - 8888:8888
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   customers-service:
-    image: j4ro123/spring-petclinic-customers-service
+    image: j4ro123/spring-petclinic-cloud-customers-service
     container_name: customers-service
-    deploy:
-      resources:
-        limits:
-          memory: 500M
+    mem_limit: 1000M
     depends_on:
-      config-server:
-        condition: service_healthy
-      discovery-server:
-        condition: service_healthy
+      - config-server
+      - mysql
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker, mysql
     ports:
-      - 8081:8081
+      - 8081:8080
 
   visits-service:
-    image: j4ro123/spring-petclinic-visits-service
+    image: j4ro123/spring-petclinic-cloud-visits-service
     container_name: visits-service
-    deploy:
-      resources:
-        limits:
-          memory: 500M
+    mem_limit: 1000M
     depends_on:
-      config-server:
-        condition: service_healthy
-      discovery-server:
-        condition: service_healthy
+      - config-server
+      - mysql
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker, mysql
     ports:
-      - 8082:8082
+      - 8082:8080
 
   vets-service:
-    image: j4ro123/spring-petclinic-vets-service
+    image: j4ro123/spring-petclinic-cloud-vets-service
     container_name: vets-service
-    deploy:
-      resources:
-        limits:
-          memory: 500M
+    mem_limit: 1000M
     depends_on:
-      config-server:
-        condition: service_healthy
-      discovery-server:
-        condition: service_healthy
+      - config-server
+      - mysql
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker, mysql
     ports:
-      - 8083:8083
+      - 8083:8080
 
   api-gateway:
-    image: j4ro123/spring-petclinic-api-gateway
+    image: j4ro123/spring-petclinic-cloud-api-gateway
     container_name: api-gateway
-    deploy:
-      resources:
-        limits:
-          memory: 500M
+    mem_limit: 1000M
     depends_on:
-      config-server:
-        condition: service_healthy
-      discovery-server:
-        condition: service_healthy
+      - config-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
     ports:
       - 8080:8080
-
-  # tracing-server:
-  #   image: openzipkin/zipkin
-  #   container_name: tracing-server
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         memory: 400M
-  #   environment:
-  #     - JAVA_OPTS=-XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom
-  #   ports:
-  #     - 9411:9411
-
-  admin-server:
-    image: j4ro123/spring-petclinic-admin-server
-    container_name: admin-server
-    deploy:
-      resources:
-        limits:
-          memory: 500M
-    depends_on:
-      config-server:
-        condition: service_healthy
-      discovery-server:
-        condition: service_healthy
-    ports:
-      - 9090:9090
 
   ## Grafana / Prometheus
 
   # grafana-server:
   #   build: ./docker/grafana
   #   container_name: grafana-server
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         memory: 256M
+  #   mem_limit: 256M
   #   ports:
-  #   - 3000:3000
+  #     - 3000:3000
 
   # prometheus-server:
   #   build: ./docker/prometheus
   #   container_name: prometheus-server
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         memory: 256M
+  #   mem_limit: 256M
   #   ports:
-  #   - 9091:9090
+  #     - 9091:9090

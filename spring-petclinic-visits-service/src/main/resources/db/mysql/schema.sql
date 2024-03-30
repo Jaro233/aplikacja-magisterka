@@ -1,6 +1,6 @@
-CREATE DATABASE IF NOT EXISTS service_instance_db;
+CREATE DATABASE IF NOT EXISTS petclinic;
 
-USE service_instance_db;
+USE petclinic;
 
 CREATE TABLE IF NOT EXISTS visits (
   id INT(4) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
