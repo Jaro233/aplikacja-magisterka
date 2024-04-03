@@ -4,7 +4,9 @@ describe("Owner Registration", () => {
     cy.visit("https://prod.devopshub.org/");
 
     // Step 2: Interact with the dropdown menu
-    cy.get('body layout-nav:first nav:first div:eq(1) ul:first li:eq(1) a:first').click();
+    cy.get(
+      "body layout-nav:first nav:first div:eq(1) ul:first li:eq(1) a:first"
+    ).click();
 
     // Step 3: Click the register link
     cy.get("span:contains('Register')").click();
@@ -20,7 +22,9 @@ describe("Owner Registration", () => {
     cy.get('button[type="submit"]').click();
 
     // Step 6: Verify successful registration
-    cy.get('body layout-nav:first nav:first div:eq(1) ul:first li:eq(1) a:first').click();
+    cy.get(
+      "body layout-nav:first nav:first div:eq(1) ul:first li:eq(1) a:first"
+    ).click();
     cy.get("span:contains('All')").click();
     cy.get("table tbody").contains("td", "John1 Doe").should("exist");
   });

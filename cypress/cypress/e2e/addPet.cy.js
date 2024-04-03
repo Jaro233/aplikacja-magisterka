@@ -4,7 +4,9 @@ describe("Add New Pet", () => {
     cy.visit("https://prod.devopshub.org/");
 
     // Step 2: Interact with the dropdown menu to find all owners
-    cy.get('body layout-nav:first nav:first div:eq(1) ul:first li:eq(1) a:first').click(); // Replace with your actual dropdown selector
+    cy.get(
+      "body layout-nav:first nav:first div:eq(1) ul:first li:eq(1) a:first"
+    ).click(); // Replace with your actual dropdown selector
     cy.contains("All").click(); // Adjust if your link text is different
 
     // Step 3: Click on the specific owner's name
@@ -16,9 +18,15 @@ describe("Add New Pet", () => {
 
     // Step 5: Wait for the new pet form to appear and fill out the details
     cy.get("form").should("be.visible");
-    cy.get('body > div > div > div > ui-view > pet-form > form > div:eq(1) > div > input').type("Whiskers");
-    cy.get('body > div > div > div > ui-view > pet-form > form > div:eq(2) > div > input').type("2015-01-20");
-    cy.get('body > div:eq(0) > div:eq(0) > div:eq(0) > ui-view:eq(0) > pet-form:eq(0) > form:eq(0) > div:eq(3) > div:eq(0) > select:eq(0)').select("cat");
+    cy.get(
+      "body > div > div > div > ui-view > pet-form > form > div:eq(1) > div > input"
+    ).type("Whiskers");
+    cy.get(
+      "body > div > div > div > ui-view > pet-form > form > div:eq(2) > div > input"
+    ).type("2015-01-20");
+    cy.get(
+      "body > div:eq(0) > div:eq(0) > div:eq(0) > ui-view:eq(0) > pet-form:eq(0) > form:eq(0) > div:eq(3) > div:eq(0) > select:eq(0)"
+    ).select("cat");
 
     // Step 6: Submit the form
     cy.get("button:contains('Submit')").click();

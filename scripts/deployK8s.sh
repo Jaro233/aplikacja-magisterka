@@ -19,13 +19,13 @@ kubectl ${action_kubectl}  -f init-configmap-and-role/
 echo "Deploying db..."
 helm install mysql helm/db
 
-# Deploy cert-manager
-echo "Deploying cert-manager..."
-helm install cert-manager jetstack/cert-manager --namespace cert-manager --set installCRDs=true
+# # Deploy cert-manager
+# echo "Deploying cert-manager..."
+# helm install cert-manager jetstack/cert-manager --namespace cert-manager --set installCRDs=true
 
-# Deploy nginx-ingress controller
-echo "Deploying nginx-ingress controller..."
-helm install ingress-nginx ingress-nginx/ingress-nginx --set controller.replicaCount=2  --namespace ingress-nginx
+# # Deploy nginx-ingress controller
+# echo "Deploying nginx-ingress controller..."
+# helm install ingress-nginx ingress-nginx/ingress-nginx --set controller.replicaCount=2  --namespace ingress-nginx
 
 # Deploy microservices
 echo "Deploying app..."
@@ -35,8 +35,8 @@ helm ${action_helm} vets-service helm/app/vets-service
 helm ${action_helm} visits-service helm/app/visits-service
 
 # Deploy ingress and cluster resources in the init-ingress-and-cluster directory
-echo "Deploying ingress and clusterissuer resources in init-ingress-and-clusterissuer directory..."
-kubectl ${action_kubectl}  -f init-ingress-and-clusterissuer/
+# echo "Deploying ingress and clusterissuer resources in init-ingress-and-clusterissuer directory..."
+# kubectl ${action_kubectl}  -f init-ingress-and-clusterissuer/
 
 # # Deploy monitoring
 # helm ${action_helm} prometheus prometheus-community/prometheus -f helm/monitoring/prometheus/values.yaml
