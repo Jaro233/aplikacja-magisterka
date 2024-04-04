@@ -37,3 +37,22 @@ management:
   endpoint:
     restart:
       enabled: true
+---
+spring:
+  config:
+    activate:
+      on-profile: kubernetes-stage
+  cloud:
+    config:
+      enabled: false
+    kubernetes:
+      reload:
+        strategy: restart-context
+        enabled: true
+      config:
+        enabled: true
+        name: petclinic-config-stage
+management:
+  endpoint:
+    restart:
+      enabled: true

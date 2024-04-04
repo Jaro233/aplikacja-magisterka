@@ -56,8 +56,8 @@ data:
           wavefront:
             enabled: true
 
-    customers-service-id: http://customers-service.spring-petclinic.svc.cluster.local:8081
-    visits-service-id: http://visits-service.spring-petclinic.svc.cluster.local:8082
+    customers-service-id: http://customers-service-prod.spring-petclinic.svc.cluster.local:8081
+    visits-service-id: http://vets-service-prod.spring-petclinic.svc.cluster.local:8082
 
     spring:
       datasource:
@@ -98,19 +98,19 @@ data:
             proto-append: false
           routes:
             - id: vets-service
-              uri: http://vets-service.spring-petclinic.svc.cluster.local:8083
+              uri: http://vets-service-prod.spring-petclinic.svc.cluster.local:8083
               predicates:
                 - Path=/api/vet/**
               filters:
                 - StripPrefix=2
             - id: visits-service
-              uri: http://visits-service.spring-petclinic.svc.cluster.local:8082
+              uri: http://visits-service-prod.spring-petclinic.svc.cluster.local:8082
               predicates:
                 - Path=/api/visit/**
               filters:
                 - StripPrefix=2
             - id: customers-service
-              uri: http://customers-service.spring-petclinic.svc.cluster.local:8081
+              uri: http://customers-service-prod.spring-petclinic.svc.cluster.local:8081
               predicates:
                 - Path=/api/customer/**
               filters:

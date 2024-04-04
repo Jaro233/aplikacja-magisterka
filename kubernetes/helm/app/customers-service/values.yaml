@@ -1,3 +1,11 @@
+green:
+  enabled: false
+
+blue:
+  enabled: false
+
+productionSlot: blue
+
 database:
   uri: mysql.spring-petclinic.svc.cluster.local
   port: 3306

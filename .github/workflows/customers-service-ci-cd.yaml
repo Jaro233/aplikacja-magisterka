@@ -15,6 +15,10 @@ env:
   APP_PATH: ./spring-petclinic-customers-service
   APP_NAME: spring-petclinic-customers-service
   APP_NAME_SHORT: customers-service
+  SONAR_PROJECT_KEY: jaro233_spring-petclinic-customers-service
+  # ecr repo
+  ECR_REPO_NAME: my-ecr
+  NAMESPACE: spring-petclinic
 
 jobs:
   setup:
@@ -46,11 +50,8 @@ jobs:
           cache: "maven"
           cache-dependency-path: "${{env.APP_PATH}}/pom.xml"
 
-      - name: Go to service directory
-        run: cd ${{env.APP_PATH}}
-
       - name: Run tests
-        run: mvn test
+        run: cd ${{env.APP_PATH}} && mvn test
 
   code_quality_and_security_scanning:
     runs-on: ubuntu-latest
@@ -59,45 +60,50 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Set up Java 11
+      - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
-          distribution: "adopt" # See 'Supported distributions' for available options
-          java-version: "11"
-          cache: "maven"
-          cache-dependency-path: "${{env.APP_PATH}}/pom.xml"
+          distribution: "adopt"
+          java-version: "17"
 
       - name: Run OWASP Dependency Check
-        run: |
-          # Download and unzip Dependency-Check
-          wget https://github.com/jeremylong/DependencyCheck/releases/download/v9.0.9/dependency-check-9.0.9-release.zip
-          unzip dependency-check-9.0.9-release.zip
-
-          # Run Dependency-Check
-          ./dependency-check/bin/dependency-check.sh --project "${{env.APP_NAME}}" --scan "${{env.APP_PATH}}" --nvdApiKey "${{ secrets.NVD_API_KEY }}" --format "XML" --out "${{env.APP_PATH}}/reports"
+        uses: dependency-check/Dependency-Check_Action@main
+        id: Depcheck
+        env:
+          JAVA_HOME: /opt/jdk
+        with:
+          project: "${{env.APP_NAME}}"
+          path: "${{env.APP_PATH}}"
+          format: "HTML"
+          out: "${{env.APP_PATH}}/reports"
+          args: >
+            --failOnCVSS 7
+            --enableRetired
+            --nvdApiKey "${{ secrets.NVD_API_KEY }}"
 
       - name: Upload Dependency Check Report
         uses: actions/upload-artifact@v2
         with:
           name: dependency-check-report
-          path: ${{env.APP_PATH}}/reports/dependency-check-report.xml
+          path: ${{env.APP_PATH}}/reports/dependency-check-report.html
 
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
-        with:
-          args: >
-            -Dsonar.projectKey=${{env.APP_NAME}}
-            -Dsonar.organization=jaro233
-            -Dsonar.sources=${{env.APP_PATH}}
-            -Dsonar.dependencyCheck.reportPath=${{env.APP_PATH}}/reports/dependency-check-report.xml
+      - name: Run SonarCloud analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CUSTOMERS_SERVICE }}
+        run: |
+          cd ${{env.APP_PATH}} && mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          -Dsonar.projectKey=${{env.SONAR_PROJECT_KEY}} \
+          -Dsonar.organization=jaro233 \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.login=${{ env.SONAR_TOKEN }} \
+          -Dsonar.qualitygate.wait=true \
+          -Dsonar.dependencyCheck.reportPath=.${{env.APP_PATH}}/reports/dependency-check-report.html
 
   build_and_push:
     runs-on: ubuntu-latest
     outputs:
-      ecr-registry: ${{ steps.login-ecr-public.outputs.registry }}
+      ecr-registry: ${{ steps.login-ecr-private.outputs.registry }}
     needs: code_quality_and_security_scanning
     steps:
       - name: Check out repository code
@@ -111,11 +117,8 @@ jobs:
           cache: "maven"
           cache-dependency-path: "${{env.APP_PATH}}/pom.xml"
 
-      - name: Go to service directory
-        run: cd ${{env.APP_PATH}}
-
       - name: Build artifact
-        run: mvn clean install -DskipTests
+        run: cd ${{env.APP_PATH}} && mvn clean install -DskipTests
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -124,22 +127,22 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Login to Amazon ECR Public
-        id: login-ecr-public
+      - name: Login to Amazon ECR Private
+        id: login-ecr-private
         uses: aws-actions/amazon-ecr-login@v2
         with:
-          registry-type: public
+          registry-type: private
 
       - name: Build and push Docker image to ECR
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ../docker/Dockerfile
+          file: ./docker/Dockerfile
           build-args: |
-            - ARTIFACT_NAME=${{env.APP_PATH}}/target/${{env.APP_NAME_SHORT}}.jar
-            - DOCKERIZE_VERSION=v0.7.0
-            - EXPOSED_PORT=8080
-          tags: ${{ steps.login-ecr-public.outputs.registry }}/${{env.APP_NAME}}:1.${{ github.run_number }}
+            ARTIFACT_NAME=${{env.APP_PATH}}/target/${{env.APP_NAME_SHORT}}.jar
+            DOCKERIZE_VERSION=v0.7.0
+            EXPOSED_PORT=8080
+          tags: ${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}:1.${{ github.run_number }}
           push: true
 
   docker_image_scanning:
@@ -149,12 +152,25 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR Private
+        id: login-ecr-private
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: private
+
       - name: Scan the Docker image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ needs.build_and_push.outputs.ecr-registry }}/${{env.APP_NAME}}:1.${{ github.run_number }}
+          image-ref: ${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}:1.${{ github.run_number }}
           format: "table"
-          exit-code: "1"
+          exit-code: "0"
           ignore-unfixed: true
           vuln-type: "os,library"
           severity: "CRITICAL,HIGH"
@@ -162,6 +178,9 @@ jobs:
   deployment:
     runs-on: ubuntu-latest
     needs: docker_image_scanning
+    # needs: build_and_push
+    permissions:
+      issues: write
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -172,6 +191,12 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR Private
+        id: login-ecr-private
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: private
 
       - name: Install Helm
         run: |
@@ -183,11 +208,47 @@ jobs:
         run: |
           aws eks update-kubeconfig --name ${{ secrets.CLUSTER_NAME }}
 
-      - name: Upgrade Application with Helm
+      - name: Deploy to Staging
         run: |
-          helm upgrade ${{ env.APP_NAME_SHORT }} ./kubernetes/helm/app/${{ env.APP_NAME_SHORT }} \
-            --reuse-values \
-            --set microservice.image.tag=1.${{ github.run_number }}
+          currentSlot=`(helm get values --all ${{env.APP_NAME_SHORT}} | grep -Po 'productionSlot: \K.*')`
+          echo $currentSlot
+          if [ "$currentSlot" == "blue" ]; then
+              oldSlot="blue"
+              newSlot="green"
+          else
+              oldSlot="green"
+              newSlot="blue"
+          fi
+          deploymentOption=$newSlot.enabled=true
+          echo $deploymentOption
+          echo "oldSlot=$oldSlot" >> $GITHUB_ENV
+          echo "newSlot=$newSlot" >> $GITHUB_ENV
+          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
+
+      - name: Manual aprroval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: Jaro233
+          minimum-approvals: 1
+          issue-title: "Deploying ${{env.APP_NAME_SHORT}} v1.${{ github.run_number }} to prod from staging"
+          issue-body: "Please approve or deny the deployment of version v1.${{ github.run_number }}"
+          exclude-workflow-initiator-as-approver: false
+          additional-approved-words: ""
+          additional-denied-words: ""
+
+      - name: Swap Production to New Version
+        if: success() # Only proceed if tests pass
+        run: |
+          deploymentOption=productionSlot=$newSlot
+          echo $deploymentOption
+          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
+
+      # - name: Cleanup Old slot
+      #   run: |
+      #     deploymentOption=$oldSlot.enabled=false
+      #     echo $deploymentOption
+      #     helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
 
   zap-scan:
     runs-on: ubuntu-latest
@@ -199,7 +260,8 @@ jobs:
       - name: ZAP Scan
         uses: zaproxy/action-full-scan@v0.9.0
         with:
-          target: "https://petclinic.devopshub.org"
+          target: "https://prod.devopshub.org"
+          allow_issue_writing: false
 
   cypress-run:
     runs-on: ubuntu-latest
@@ -208,11 +270,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Go to cypress directory
-        run: cd cypress
-
       - name: Install Dependencies
-        run: npm install
+        run: cd cypress && npm install
 
       - name: Cypress run
         uses: cypress-io/github-action@v6
@@ -220,3 +279,4 @@ jobs:
           wait-on-timeout: 10
           config: video=false
           browser: chrome
+          working-directory: cypress

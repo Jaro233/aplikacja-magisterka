@@ -29,5 +29,14 @@ spec:
             - containerPort: {{.Values.microservice.containerPort}}
           env:
             - name: SPRING_PROFILES_ACTIVE
-              value: {{ if eq .Values.productionSlot "blue" }}kubernetes-stage{{ else }}kubernetes{{ end }}
+              value: kubernetes
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://{{.Values.database.uri}}:{{.Values.database.port}}/petclinic
+            - name: SPRING_DATASOURCE_USERNAME
+              value: {{.Values.database.username}}
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{.Values.database.password.secret}}
+                  key: {{.Values.database.password.key}}
 {{ end }}

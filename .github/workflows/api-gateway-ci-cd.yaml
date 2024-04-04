@@ -226,7 +226,7 @@ jobs:
           echo $deploymentOption
           echo "oldSlot=$oldSlot" >> $GITHUB_ENV
           echo "newSlot=$newSlot" >> $GITHUB_ENV
-          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/api-gateway --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
+          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
 
       - name: Manual aprroval
         uses: trstringer/manual-approval@v1
@@ -245,13 +245,13 @@ jobs:
         run: |
           deploymentOption=productionSlot=$newSlot
           echo $deploymentOption
-          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/api-gateway --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
+          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
 
-      - name: Cleanup Old slot
-        run: |
-          deploymentOption=$oldSlot.enabled=false
-          echo $deploymentOption
-          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/api-gateway --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
+      # - name: Cleanup Old slot
+      #   run: |
+      #     deploymentOption=$oldSlot.enabled=false
+      #     echo $deploymentOption
+      #     helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
 
   zap-scan:
     runs-on: ubuntu-latest
