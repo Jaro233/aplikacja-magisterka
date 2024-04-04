@@ -17,7 +17,7 @@ microservice:
       memory: 1Gi
   uri: visits-service.spring-petclinic.svc.cluster.local
   image:
-    repository: j4ro123/spring-petclinic-cloud-visits-service
+    repository: j4ro123/spring-petclinic-visits-service
     tag: latest
   containerPort: 8080
   service:

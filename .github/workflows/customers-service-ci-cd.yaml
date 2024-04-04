@@ -136,7 +136,7 @@ jobs:
           context: .
           file: ../docker/Dockerfile
           build-args: |
-            - ARTIFACT_NAME=${{env.APP_NAME_SHORT}}
+            - ARTIFACT_NAME=${{env.APP_PATH}}/target/${{env.APP_NAME_SHORT}}.jar
             - DOCKERIZE_VERSION=v0.7.0
             - EXPOSED_PORT=8080
           tags: ${{ steps.login-ecr-public.outputs.registry }}/${{env.APP_NAME}}:1.${{ github.run_number }}

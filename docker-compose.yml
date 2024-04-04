@@ -1,4 +1,4 @@
-version: "2"
+version: "3"
 
 services:
   mysql:
@@ -24,65 +24,102 @@ services:
     ports:
       - 3306:3306
   config-server:
-    image: j4ro123/spring-petclinic-cloud-config-server
+    image: j4ro123/spring-petclinic-config-server
     container_name: config-server
     mem_limit: 1000M
     ports:
       - 8888:8888
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   customers-service:
-    image: j4ro123/spring-petclinic-cloud-customers-service
+    image: j4ro123/spring-petclinic-customers-service
     container_name: customers-service
     mem_limit: 1000M
     depends_on:
       - config-server
-      - mysql
+    entrypoint:
+      [
+        "./dockerize",
+        "-wait=tcp://config-server:8888",
+        "-timeout=60s",
+        "--",
+        "java",
+        "org.springframework.boot.loader.JarLauncher",
+      ]
     environment:
       - SPRING_PROFILES_ACTIVE=docker, mysql
     ports:
       - 8081:8080
 
   visits-service:
-    image: j4ro123/spring-petclinic-cloud-visits-service
+    image: j4ro123/spring-petclinic-visits-service
     container_name: visits-service
     mem_limit: 1000M
     depends_on:
       - config-server
-      - mysql
+    entrypoint:
+      [
+        "./dockerize",
+        "-wait=tcp://config-server:8888",
+        "-timeout=60s",
+        "--",
+        "java",
+        "org.springframework.boot.loader.JarLauncher",
+      ]
     environment:
       - SPRING_PROFILES_ACTIVE=docker, mysql
     ports:
       - 8082:8080
 
   vets-service:
-    image: j4ro123/spring-petclinic-cloud-vets-service
+    image: j4ro123/spring-petclinic-vets-service
     container_name: vets-service
     mem_limit: 1000M
     depends_on:
       - config-server
-      - mysql
+    entrypoint:
+      [
+        "./dockerize",
+        "-wait=tcp://config-server:8888",
+        "-timeout=60s",
+        "--",
+        "java",
+        "org.springframework.boot.loader.JarLauncher",
+      ]
     environment:
       - SPRING_PROFILES_ACTIVE=docker, mysql
     ports:
       - 8083:8080
 
   api-gateway:
-    image: j4ro123/spring-petclinic-cloud-api-gateway
+    image: j4ro123/spring-petclinic-api-gateway
     container_name: api-gateway
     mem_limit: 1000M
     depends_on:
       - config-server
+    entrypoint:
+      [
+        "./dockerize",
+        "-wait=tcp://config-server:8888",
+        "-timeout=60s",
+        "--",
+        "java",
+        "org.springframework.boot.loader.JarLauncher",
+      ]
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     ports:
       - 8080:8080
+
+  tracing-server:
+    image: openzipkin/zipkin
+    container_name: tracing-server
+    mem_limit: 1000M
+    environment:
+      - JAVA_OPTS=-XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom
+    ports:
+      - 9411:9411
 
   ## Grafana / Prometheus
 
