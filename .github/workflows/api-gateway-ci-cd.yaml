@@ -69,19 +69,13 @@ jobs:
           java-version: "17"
 
       - name: Run OWASP Dependency Check
-        uses: dependency-check/Dependency-Check_Action@main
-        id: Depcheck
-        env:
-          JAVA_HOME: /opt/jdk
-        with:
-          project: "${{env.APP_NAME}}"
-          path: "${{env.APP_PATH}}"
-          format: "HTML"
-          out: "${{env.APP_PATH}}/reports"
-          args: >
-            --failOnCVSS 7
-            --enableRetired
-            --nvdApiKey "${{ secrets.NVD_API_KEY }}"
+        run: |
+          # Download and unzip Dependency-Check
+          wget https://github.com/jeremylong/DependencyCheck/releases/download/v9.0.9/dependency-check-9.0.9-release.zip
+          unzip dependency-check-9.0.9-release.zip
+
+          # Run Dependency-Check
+          ./dependency-check/bin/dependency-check.sh --project "${{env.APP_NAME}}" --scan "${{env.APP_PATH}}" --nvdApiKey "${{ secrets.NVD_API_KEY }}" --format "HTML" --out "${{env.APP_PATH}}/reports"
 
       - name: Upload Dependency Check Report
         uses: actions/upload-artifact@v2
