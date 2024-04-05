@@ -242,17 +242,9 @@ jobs:
       - name: Swap Production to New Version
         if: success() # Only proceed if tests pass
         run: |
-          if [ "$newSlot" == "blue" ]; then
-            deploymentOption=productionSlot=$newSlot
-            echo $deploymentOption
-            helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.spring_profiles_blue=kubernetes --reuse-values
-            helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --set microservice.spring_profiles_green=kubernetes-stage --reuse-values
-          else
-            deploymentOption=productionSlot=$newSlot
-            echo $deploymentOption
-            helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.spring_profiles_green=kubernetes --reuse-values
-            helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --set microservice.spring_profiles_blue=kubernetes-stage --reuse-values
-          fi
+          deploymentOption=productionSlot=$newSlot
+          echo $deploymentOption
+          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --reuse-values
 
       # - name: Cleanup Old slot
       #   run: |

@@ -29,5 +29,5 @@ spec:
             - containerPort: {{.Values.microservice.containerPort}}
           env:
             - name: SPRING_PROFILES_ACTIVE
-              value: {{.Values.microservice.spring_profiles_green}}
+              value: {{ if eq .Values.productionSlot "blue" }}kubernetes-stage{{ else }}kubernetes{{ end }}
 {{ end }}
