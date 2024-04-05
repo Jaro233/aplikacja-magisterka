@@ -251,7 +251,7 @@ jobs:
             deploymentOption=productionSlot=$newSlot
             echo $deploymentOption
             helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.spring_profiles_green=kubernetes --reuse-values
-            helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --set microservice.spring_profiles_blue=kubernetes-stage 
+            helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --set microservice.spring_profiles_blue=kubernetes-stage --reuse-values
           fi
 
       # - name: Cleanup Old slot
