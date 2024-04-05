@@ -242,9 +242,35 @@ jobs:
       - name: Swap Production to New Version
         if: success() # Only proceed if tests pass
         run: |
-          deploymentOption=productionSlot=$newSlot
-          echo $deploymentOption
-          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --reuse-values
+          if [ "$newSlot" == "blue" ]; then
+            kubectl create configmap api-gateway-config-blue \
+            --from-literal=SPRING_PROFILES_ACTIVE=kubernetes \
+            --namespace ${{ env.NAMESPACE }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+            deploymentOption=productionSlot=$newSlot
+            echo $deploymentOption
+            helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --reuse-values
+
+            kubectl create configmap api-gateway-config-green \
+            --from-literal=SPRING_PROFILES_ACTIVE=kubernetes-stage \
+            --namespace ${{ env.NAMESPACE }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+          else
+            kubectl create configmap api-gateway-config-green \
+            --from-literal=SPRING_PROFILES_ACTIVE=kubernetes \
+            --namespace ${{ env.NAMESPACE }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+            deploymentOption=productionSlot=$newSlot
+            echo $deploymentOption
+            helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --reuse-values
+
+            kubectl create configmap api-gateway-config-blue \
+            --from-literal=SPRING_PROFILES_ACTIVE=kubernetes-stage \
+            --namespace ${{ env.NAMESPACE }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+          fi
 
       # - name: Cleanup Old slot
       #   run: |

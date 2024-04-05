@@ -27,7 +27,7 @@ spec:
               memory: {{.Values.microservice.resources.requests.memory}}
           ports:
             - containerPort: {{.Values.microservice.containerPort}}
-          env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: {{ if eq .Values.productionSlot "blue" }}kubernetes-stage{{ else }}kubernetes{{ end }}
+          envFrom:
+          - configMapRef:
+              name: api-gateway-config-green
 {{ end }}
