@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: mysql-initdb-scripts
-  namespace: spring-petclinic
+  namespace: {{.Release.Namespace}}
 data:
   a.sql: |
     CREATE DATABASE IF NOT EXISTS petclinic;

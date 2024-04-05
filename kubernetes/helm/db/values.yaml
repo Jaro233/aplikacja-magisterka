@@ -42,7 +42,7 @@ nameOverride: ""
 fullnameOverride: ""
 ## @param namespaceOverride String to fully override common.names.namespace
 ##
-namespaceOverride: "spring-petclinic"
+namespaceOverride: ""
 ## @param clusterDomain Cluster domain
 ##
 clusterDomain: cluster.local

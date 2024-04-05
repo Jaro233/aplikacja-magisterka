@@ -29,7 +29,8 @@ helm ${action_helm} ingress-nginx -n ingress-nginx
 helm ${action_helm} cert-manager -n cert-manager
 
 # Uninstall db
-helm ${action_helm} mysql
+helm ${action_helm} mysql-prod -n prod-db
+helm ${action_helm} mysql-stage -n stage-db
 
 # Delete ConfigMaps and roles in the init-confimap-and-roles directory
 echo "Deleting ConfigMaps and roles in init-confimap-and-roles directory..."

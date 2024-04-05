@@ -17,7 +17,8 @@ kubectl ${action_kubectl}  -f init-configmap-and-role/
 
 # Deploy db
 echo "Deploying db..."
-helm install mysql helm/db
+helm install mysql-prod helm/db -n prod-db
+helm install mysql-stage helm/db -n stage-db
 
 # Deploy cert-manager
 echo "Deploying cert-manager..."

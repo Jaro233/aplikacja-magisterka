@@ -88,7 +88,7 @@ jobs:
       - name: Run SonarCloud analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_VETS_SERVICE }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_VETS_SERVICE}}
         run: |
           cd ${{env.APP_PATH}} && mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
           -Dsonar.projectKey=${{env.SONAR_PROJECT_KEY}} \
@@ -213,15 +213,20 @@ jobs:
           if [ "$currentSlot" == "blue" ]; then
               oldSlot="blue"
               newSlot="green"
+              deploymentOption=$newSlot.enabled=true
+              echo $deploymentOption
+              echo "oldSlot=$oldSlot" >> $GITHUB_ENV
+              echo "newSlot=$newSlot" >> $GITHUB_ENV
+              helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.image.repository_green=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_green=1.${{ github.run_number }} --reuse-values
           else
               oldSlot="green"
               newSlot="blue"
+              deploymentOption=$newSlot.enabled=true
+              echo $deploymentOption
+              echo "oldSlot=$oldSlot" >> $GITHUB_ENV
+              echo "newSlot=$newSlot" >> $GITHUB_ENV
+              helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.image.repository_blue=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_blue=1.${{ github.run_number }} --reuse-values
           fi
-          deploymentOption=$newSlot.enabled=true
-          echo $deploymentOption
-          echo "oldSlot=$oldSlot" >> $GITHUB_ENV
-          echo "newSlot=$newSlot" >> $GITHUB_ENV
-          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
 
       - name: Manual aprroval
         uses: trstringer/manual-approval@v1
@@ -240,7 +245,7 @@ jobs:
         run: |
           deploymentOption=productionSlot=$newSlot
           echo $deploymentOption
-          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
+          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --reuse-values
 
       # - name: Cleanup Old slot
       #   run: |

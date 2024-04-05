@@ -23,84 +23,84 @@ env:
   NAMESPACE: spring-petclinic
 
 jobs:
-  # setup:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v4
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
 
-  #     - name: Set up Java 11
-  #       uses: actions/setup-java@v4
-  #       with:
-  #         distribution: "adopt" # See 'Supported distributions' for available options
-  #         java-version: "11"
-  #         cache: "maven"
-  #         cache-dependency-path: "${{env.APP_PATH}}/pom.xml"
+      - name: Set up Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: "adopt" # See 'Supported distributions' for available options
+          java-version: "11"
+          cache: "maven"
+          cache-dependency-path: "${{env.APP_PATH}}/pom.xml"
 
-  # integration_tests:
-  #   runs-on: ubuntu-latest
-  #   needs: setup
-  #   steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v4
+  integration_tests:
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
 
-  #     - name: Set up Java 11
-  #       uses: actions/setup-java@v4
-  #       with:
-  #         distribution: "adopt" # See 'Supported distributions' for available options
-  #         java-version: "11"
-  #         cache: "maven"
-  #         cache-dependency-path: "${{env.APP_PATH}}/pom.xml"
+      - name: Set up Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: "adopt" # See 'Supported distributions' for available options
+          java-version: "11"
+          cache: "maven"
+          cache-dependency-path: "${{env.APP_PATH}}/pom.xml"
 
-  #     - name: Run tests
-  #       run: cd ${{env.APP_PATH}} && mvn test
+      - name: Run tests
+        run: cd ${{env.APP_PATH}} && mvn test
 
-  # code_quality_and_security_scanning:
-  #   runs-on: ubuntu-latest
-  #   # needs: integration_tests
-  #   steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v4
+  code_quality_and_security_scanning:
+    runs-on: ubuntu-latest
+    needs: integration_tests
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
 
-  #     - name: Set up Java 17
-  #       uses: actions/setup-java@v4
-  #       with:
-  #         distribution: "adopt"
-  #         java-version: "17"
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "adopt"
+          java-version: "17"
 
-  #     - name: Run OWASP Dependency Check
-  #       run: |
-  #         # Download and unzip Dependency-Check
-  #         wget https://github.com/jeremylong/DependencyCheck/releases/download/v9.0.9/dependency-check-9.0.9-release.zip
-  #         unzip dependency-check-9.0.9-release.zip
+      - name: Run OWASP Dependency Check
+        run: |
+          # Download and unzip Dependency-Check
+          wget https://github.com/jeremylong/DependencyCheck/releases/download/v9.0.9/dependency-check-9.0.9-release.zip
+          unzip dependency-check-9.0.9-release.zip
 
-  #         # Run Dependency-Check
-  #         ./dependency-check/bin/dependency-check.sh --project "${{env.APP_NAME}}" --scan "${{env.APP_PATH}}" --nvdApiKey "${{ secrets.NVD_API_KEY }}" --format "HTML" --out "${{env.APP_PATH}}/reports"
+          # Run Dependency-Check
+          ./dependency-check/bin/dependency-check.sh --project "${{env.APP_NAME}}" --scan "${{env.APP_PATH}}" --nvdApiKey "${{ secrets.NVD_API_KEY }}" --format "HTML" --out "${{env.APP_PATH}}/reports"
 
-  #     - name: Upload Dependency Check Report
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         name: dependency-check-report
-  #         path: ${{env.APP_PATH}}/reports/dependency-check-report.html
+      - name: Upload Dependency Check Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: dependency-check-report
+          path: ${{env.APP_PATH}}/reports/dependency-check-report.html
 
-  #     - name: Run SonarCloud analysis
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_API_GATEWAY }}
-  #       run: |
-  #         cd ${{env.APP_PATH}} && mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-  #         -Dsonar.projectKey=${{env.SONAR_PROJECT_KEY}} \
-  #         -Dsonar.organization=jaro233 \
-  #         -Dsonar.host.url=https://sonarcloud.io \
-  #         -Dsonar.login=${{ env.SONAR_TOKEN }} \
-  #         -Dsonar.qualitygate.wait=true \
-  #         -Dsonar.dependencyCheck.reportPath=.${{env.APP_PATH}}/reports/dependency-check-report.html
+      - name: Run SonarCloud analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_API_GATEWAY }}
+        run: |
+          cd ${{env.APP_PATH}} && mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          -Dsonar.projectKey=${{env.SONAR_PROJECT_KEY}} \
+          -Dsonar.organization=jaro233 \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.login=${{ env.SONAR_TOKEN }} \
+          -Dsonar.qualitygate.wait=true \
+          -Dsonar.dependencyCheck.reportPath=.${{env.APP_PATH}}/reports/dependency-check-report.html
 
   build_and_push:
     runs-on: ubuntu-latest
     outputs:
       ecr-registry: ${{ steps.login-ecr-private.outputs.registry }}
-    # needs: code_quality_and_security_scanning
+    needs: code_quality_and_security_scanning
     # needs: integration_tests
     steps:
       - name: Check out repository code
@@ -142,40 +142,40 @@ jobs:
           tags: ${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}:1.${{ github.run_number }}
           push: true
 
-  # docker_image_scanning:
-  #   runs-on: ubuntu-latest
-  #   needs: build_and_push
-  #   steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v4
+  docker_image_scanning:
+    runs-on: ubuntu-latest
+    needs: build_and_push
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
 
-  #     - name: Configure AWS Credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ${{ secrets.AWS_REGION }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-  #     - name: Login to Amazon ECR Private
-  #       id: login-ecr-private
-  #       uses: aws-actions/amazon-ecr-login@v2
-  #       with:
-  #         registry-type: private
+      - name: Login to Amazon ECR Private
+        id: login-ecr-private
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: private
 
-  #     - name: Scan the Docker image with Trivy
-  #       uses: aquasecurity/trivy-action@master
-  #       with:
-  #         image-ref: ${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}:1.${{ github.run_number }}
-  #         format: "table"
-  #         exit-code: "0"
-  #         ignore-unfixed: true
-  #         vuln-type: "os,library"
-  #         severity: "CRITICAL,HIGH"
+      - name: Scan the Docker image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}:1.${{ github.run_number }}
+          format: "table"
+          exit-code: "0"
+          ignore-unfixed: true
+          vuln-type: "os,library"
+          severity: "CRITICAL,HIGH"
 
   deployment:
     runs-on: ubuntu-latest
-    # needs: docker_image_scanning
-    needs: build_and_push
+    needs: docker_image_scanning
+    # needs: build_and_push
     permissions:
       issues: write
     steps:
@@ -252,33 +252,33 @@ jobs:
       #     echo $deploymentOption
       #     helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
 
-  # zap-scan:
-  #   runs-on: ubuntu-latest
-  #   needs: deployment
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
+  zap-scan:
+    runs-on: ubuntu-latest
+    needs: deployment
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  #     - name: ZAP Scan
-  #       uses: zaproxy/action-full-scan@v0.9.0
-  #       with:
-  #         target: "https://prod.devopshub.org"
-  #         allow_issue_writing: false
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.9.0
+        with:
+          target: "https://prod.devopshub.org"
+          allow_issue_writing: false
 
-  # cypress-run:
-  #   runs-on: ubuntu-latest
-  #   # needs: zap-scan
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
+  cypress-run:
+    runs-on: ubuntu-latest
+    needs: zap-scan
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  #     - name: Install Dependencies
-  #       run: cd cypress && npm install
+      - name: Install Dependencies
+        run: cd cypress && npm install
 
-  #     - name: Cypress run
-  #       uses: cypress-io/github-action@v6
-  #       with:
-  #         wait-on-timeout: 10
-  #         config: video=false
-  #         browser: chrome
-  #         working-directory: cypress
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          wait-on-timeout: 10
+          config: video=false
+          browser: chrome
+          working-directory: cypress

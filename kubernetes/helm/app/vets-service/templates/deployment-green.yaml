@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: {{.Values.microservice.name}}
-          image: "{{ .Values.microservice.image.repository }}:{{ .Values.microservice.image.tag }}"
+          image: "{{ .Values.microservice.image.repository_green }}:{{ .Values.microservice.image.tag_green }}"
           resources:
             limits:
               memory: {{.Values.microservice.resources.limits.memory}}
@@ -31,7 +31,7 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: kubernetes
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://{{.Values.database.uri}}:{{.Values.database.port}}/petclinic
+              value: jdbc:mysql://{{ if eq .Values.productionSlot "blue" }}mysql-stage.stage-db{{ else }}mysql-prod.prod-db{{ end }}.svc.cluster.local:{{.Values.database.port}}/petclinic 
             - name: SPRING_DATASOURCE_USERNAME
               value: {{.Values.database.username}}
             - name: SPRING_DATASOURCE_PASSWORD
