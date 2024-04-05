@@ -225,6 +225,7 @@ jobs:
               echo "oldSlot=$oldSlot" >> $GITHUB_ENV
               echo "newSlot=$newSlot" >> $GITHUB_ENV
               helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.image.repository_blue=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_blue=1.${{ github.run_number }} --reuse-values
+          fi
 
       - name: Manual aprroval
         uses: trstringer/manual-approval@v1
