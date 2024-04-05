@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: {{.Values.microservice.name}}
-          image: "{{ .Values.microservice.image.repository }}:{{ .Values.microservice.image.tag }}"
+          image: "{{ .Values.microservice.image.repository_green }}:{{ .Values.microservice.image.tag_green }}"
           resources:
             limits:
               memory: {{.Values.microservice.resources.limits.memory}}
