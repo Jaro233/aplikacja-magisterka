@@ -27,7 +27,7 @@ spec:
               memory: {{.Values.microservice.resources.requests.memory}}
           ports:
             - containerPort: {{.Values.microservice.containerPort}}
-          envFrom:
-          - configMapRef:
-              name: api-gateway-config-green
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: {{.Values.microservice.spring_profiles_green}}
 {{ end }}

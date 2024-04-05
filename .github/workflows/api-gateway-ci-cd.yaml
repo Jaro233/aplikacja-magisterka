@@ -243,33 +243,15 @@ jobs:
         if: success() # Only proceed if tests pass
         run: |
           if [ "$newSlot" == "blue" ]; then
-            kubectl create configmap api-gateway-config-blue \
-            --from-literal=SPRING_PROFILES_ACTIVE=kubernetes \
-            --namespace ${{ env.NAMESPACE }} \
-            --dry-run=client -o yaml | kubectl apply -f -
-
             deploymentOption=productionSlot=$newSlot
             echo $deploymentOption
-            helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --reuse-values
-
-            kubectl create configmap api-gateway-config-green \
-            --from-literal=SPRING_PROFILES_ACTIVE=kubernetes-stage \
-            --namespace ${{ env.NAMESPACE }} \
-            --dry-run=client -o yaml | kubectl apply -f -
+            helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.spring_profiles_blue=kubernetes --reuse-values
+            helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --set microservice.spring_profiles_green=kubernetes-stage --reuse-values
           else
-            kubectl create configmap api-gateway-config-green \
-            --from-literal=SPRING_PROFILES_ACTIVE=kubernetes \
-            --namespace ${{ env.NAMESPACE }} \
-            --dry-run=client -o yaml | kubectl apply -f -
-
             deploymentOption=productionSlot=$newSlot
             echo $deploymentOption
-            helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --reuse-values
-
-            kubectl create configmap api-gateway-config-blue \
-            --from-literal=SPRING_PROFILES_ACTIVE=kubernetes-stage \
-            --namespace ${{ env.NAMESPACE }} \
-            --dry-run=client -o yaml | kubectl apply -f -
+            helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.spring_profiles_green=kubernetes --reuse-values
+            helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --set microservice.spring_profiles_blue=kubernetes-stage 
           fi
 
       # - name: Cleanup Old slot

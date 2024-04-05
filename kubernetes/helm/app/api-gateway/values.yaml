@@ -16,6 +16,8 @@ microservice:
     requests:
       memory: 1Gi
   uri: api-gateway.spring-petclinic.svc.cluster.local
+  spring_profiles_blue: kubernetes
+  spring_profiles_green: kubernetes-stage
   image:
     repository_blue: j4ro123/spring-petclinic-api-gateway
     repository_green: j4ro123/spring-petclinic-api-gateway
