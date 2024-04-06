@@ -20,9 +20,12 @@ microservice:
   replicaCount: 1
   resources:
     limits:
-      memory: 1Gi
+      # memory: 1Gi
+      memory: 800Mi
     requests:
-      memory: 1Gi
+      # memory: 1Gi
+      memory: 800Mi
+
   uri: visits-service.spring-petclinic.svc.cluster.local
   image:
     repository_blue: j4ro123/spring-petclinic-visits-service
