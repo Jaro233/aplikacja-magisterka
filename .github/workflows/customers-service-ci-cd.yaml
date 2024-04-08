@@ -218,6 +218,12 @@ jobs:
           echo "newSlot=$newSlot" >> $GITHUB_ENV
           helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.image.repository_${newSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${newSlot}=1.${{ github.run_number }} --reuse-values
 
+          if ! kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${newSlot}-stage -n ${{env.NAMESPACE}} --timeout=60s; then
+            echo "Deployment failed. Starting rollback..."
+            helm rollback "${{env.APP_NAME_SHORT}}"  # This rolls back to the previous revision
+            exit 1
+          fi
+
       - name: Manual aprroval
         uses: trstringer/manual-approval@v1
         with:
@@ -257,15 +263,28 @@ jobs:
             echo "Service selector updated successfully."
           else
             echo "Service selector not updated. Starting rollback..."
-            helm rollback "${{env.APP_NAME_SHORT}}"  # This rolls back to the previous revision
+            # Get the current revision number for the release
+            CURRENT_REVISION=$(helm history ${{env.APP_NAME_SHORT}} --max 1 --output json | jq '.[0].revision')
+
+            # Calculate the target revision for rolling back 2 versions
+            TARGET_REVISION=$((CURRENT_REVISION - 2))
+
+            # Perform the rollback
+            helm rollback "${{env.APP_NAME_SHORT}}" $TARGET_REVISION
             exit 1
           fi
 
           # Update the old version (oldSlot) to the stage configuration and with new app version, next wait for it to become ready
-          helm upgrade "${{env.APP_NAME_SHORT}}" ./kubernetes/helm/app/"${{env.APP_NAME_SHORT}}" --set microservice.uri_env_${oldSlot}=mysql-stage.stage-db --set microservice.current_environment_${newSlot}=stage --set microservice.image.repository_${oldSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${oldSlot}=1.${{ github.run_number }} --reuse-values
+          helm upgrade "${{env.APP_NAME_SHORT}}" ./kubernetes/helm/app/"${{env.APP_NAME_SHORT}}" --set microservice.uri_env_${oldSlot}=mysql-stage.stage-db --set microservice.current_environment_${oldSlot}=stage --set microservice.image.repository_${oldSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${oldSlot}=1.${{ github.run_number }} --reuse-values
           if ! kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${oldSlot}-stage -n ${{env.NAMESPACE}} --timeout=60s; then
             echo "Deployment failed. Starting rollback..."
-            helm rollback "${{env.APP_NAME_SHORT}}"  # This rolls back to the previous revision
+            CURRENT_REVISION=$(helm history ${{env.APP_NAME_SHORT}} --max 1 --output json | jq '.[0].revision')
+
+            # Calculate the target revision for rolling back 3 versions
+            TARGET_REVISION=$((CURRENT_REVISION - 3))
+
+            # Perform the rollback
+            helm rollback "${{env.APP_NAME_SHORT}}" $TARGET_REVISION
             exit 1
           fi
 
