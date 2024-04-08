@@ -18,14 +18,15 @@ database:
 microservice:
   name: visits-service
   namespace: spring-petclinic
-  replicaCount: 2
+  replicaCount: 1
   current_environment_blue: prod
   current_environment_green: stage
   resources:
     limits:
-      limits:
       memory: 1Gi
+      cpu: 500m
     requests:
+      cpu: 500m
       memory: 1Gi
   image:
     repository_blue: j4ro123/spring-petclinic-visits-service

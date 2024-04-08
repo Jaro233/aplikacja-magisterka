@@ -22,8 +22,10 @@ spec:
           image: "{{ .Values.microservice.image.repository_blue }}:{{ .Values.microservice.image.tag_blue }}"
           resources:
             limits:
+              cpu: {{.Values.microservice.resources.limits.cpu}}
               memory: {{.Values.microservice.resources.limits.memory}}
             requests:
+              cpu: {{.Values.microservice.resources.requests.cpu}}
               memory: {{.Values.microservice.resources.requests.memory}}
           ports:
             - containerPort: {{.Values.microservice.containerPort}}
