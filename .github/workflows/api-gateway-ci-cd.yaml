@@ -224,7 +224,7 @@ jobs:
           echo "newSlot=$newSlot" >> $GITHUB_ENV
           helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.image.repository_${newSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${newSlot}=1.${{ github.run_number }} --reuse-values
 
-          if ! kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${newSlot}-stage -n ${{env.NAMESPACE}} --timeout=60s; then
+          if ! kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${newSlot}-stage -n ${{env.NAMESPACE}} --timeout=120s; then
             echo "Deployment failed. Starting rollback..."
             helm rollback "${{env.APP_NAME_SHORT}}"  # This rolls back to the previous revision
             exit 1
@@ -251,7 +251,7 @@ jobs:
           # Deploy the new version (either blue or green) and wait for it to become ready
           helm upgrade "${{env.APP_NAME_SHORT}}" ./kubernetes/helm/app/"${{env.APP_NAME_SHORT}}" --set microservice.profile_env_${newSlot}=kubernetes --set microservice.current_environment_${newSlot}=prod --reuse-values
 
-          if ! kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${newSlot}-prod -n ${{env.NAMESPACE}} --timeout=60s; then
+          if ! kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${newSlot}-prod -n ${{env.NAMESPACE}} --timeout=120s; then
             echo "Deployment failed. Starting rollback..."
             helm rollback "${{env.APP_NAME_SHORT}}"  # This rolls back to the previous revision
             exit 1
@@ -283,7 +283,7 @@ jobs:
           # Update the old version (oldSlot) to the stage configuration and with new app version, next wait for it to become ready
           helm upgrade "${{env.APP_NAME_SHORT}}" ./kubernetes/helm/app/"${{env.APP_NAME_SHORT}}" --set microservice.profile_env_${oldSlot}=kubernetes-stage --set microservice.current_environment_${oldSlot}=stage --set microservice.image.repository_${oldSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${oldSlot}=1.${{ github.run_number }} --reuse-values
 
-          if ! kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${oldSlot}-stage -n ${{env.NAMESPACE}} --timeout=60s; then
+          if ! kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${oldSlot}-stage -n ${{env.NAMESPACE}} --timeout=120s; then
             echo "Deployment failed. Starting rollback..."
             CURRENT_REVISION=$(helm history ${{env.APP_NAME_SHORT}} --max 1 --output json | jq '.[0].revision')
 
