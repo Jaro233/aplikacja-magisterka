@@ -11,7 +11,7 @@ describe("Owner Information Editing", () => {
 
     // Step 3: Click on the specific owner's name
     // This assumes that "George Franklin" is the text to click on. Adjust as needed.
-    cy.contains("George Franklin").click();
+    cy.contains("George Franklin").click().wait(2000);
 
     // Step 4: Click "Edit Owner" button or link
     cy.get(

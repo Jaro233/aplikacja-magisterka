@@ -11,10 +11,10 @@ describe("Add New Pet", () => {
 
     // Step 3: Click on the specific owner's name
     // This assumes that "George Franklin" is the text to click on. Adjust as needed.
-    cy.contains("George Franklin").click();
+    cy.contains("George Franklin").click().wait(2000);
 
     // Step 4: Click the "Add New Pet" button
-    cy.contains("Add New Pet").click();
+    cy.contains("Add New Pet").click().wait(2000);
 
     // Step 5: Wait for the new pet form to appear and fill out the details
     cy.get("form").should("be.visible");
@@ -29,7 +29,7 @@ describe("Add New Pet", () => {
     ).select("cat");
 
     // Step 6: Submit the form
-    cy.get("button:contains('Submit')").click();
+    cy.get("button:contains('Submit')").click().wait(2000);
 
     // Step 7: Go back to George Franklin's page by clicking on his name
     cy.contains("George Franklin").click();
