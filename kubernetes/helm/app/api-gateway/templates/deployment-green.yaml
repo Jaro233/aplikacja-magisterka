@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{.Values.microservice.name}}-green
+  name: {{.Values.microservice.name}}-green-{{.Values.microservice.current_environment_green}}
   labels:
     app: {{.Values.microservice.name}}
   namespace: {{.Values.microservice.namespace}}
@@ -29,5 +29,22 @@ spec:
             - containerPort: {{.Values.microservice.containerPort}}
           env:
             - name: SPRING_PROFILES_ACTIVE
-              value: {{ if eq .Values.productionSlot "blue" }}kubernetes-stage{{ else }}kubernetes{{ end }}
+              value: {{.Values.microservice.profile_env_green}}
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.microservice.containerPort }}
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.microservice.containerPort }}
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3
 {{ end }}

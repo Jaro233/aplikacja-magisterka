@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{.Values.microservice.name}}-blue
+  name: {{.Values.microservice.name}}-blue-{{.Values.microservice.current_environment_blue}}
   labels:
     app: {{.Values.microservice.name}}
   namespace: {{.Values.microservice.namespace}}
@@ -31,7 +31,7 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: kubernetes
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://{{ if eq .Values.productionSlot "blue" }}mysql-prod.prod-db{{ else }}mysql-stage.stage-db{{ end }}.svc.cluster.local:{{.Values.database.port}}/petclinic
+              value: jdbc:mysql://{{.Values.database.uri_env_blue}}.svc.cluster.local:{{.Values.database.port}}/petclinic
             - name: SPRING_DATASOURCE_USERNAME
               value: {{.Values.database.username}}
             - name: SPRING_DATASOURCE_PASSWORD
@@ -39,4 +39,21 @@ spec:
                 secretKeyRef:
                   name: {{.Values.database.password.secret}}
                   key: {{.Values.database.password.key}}
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.microservice.containerPort }}
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.microservice.containerPort }}
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3
 {{ end }}

@@ -1,23 +1,24 @@
 green:
-  enabled: false
+  enabled: true
 
 blue:
-  enabled: false
+  enabled: true
 
 productionSlot: blue
 
 microservice:
   name: api-gateway
   namespace: spring-petclinic
-  replicaCount: 2
+  replicaCount: 1
+  current_environment_blue: prod
+  current_environment_green: stage
   resources:
     limits:
-      # memory: 1Gi
-      memory: 800Mi
+      memory: 1Gi
     requests:
-      # memory: 1Gi
-      memory: 800Mi
-
+      memory: 1Gi
+  profile_env_blue: kubernetes
+  profile_env_green: kubernetes-stage
   uri: api-gateway.spring-petclinic.svc.cluster.local
   image:
     repository_blue: j4ro123/spring-petclinic-api-gateway

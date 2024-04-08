@@ -1,7 +1,7 @@
 describe("Owner Registration", () => {
   it("should register a new owner", () => {
     // Step 1: Visit the homepage
-    cy.visit("https://prod.devopshub.org/");
+    cy.visit("/");
 
     // Step 2: Interact with the dropdown menu
     cy.get(

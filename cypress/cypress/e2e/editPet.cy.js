@@ -1,7 +1,7 @@
 describe("Edit Pet Details", () => {
   it("allows a user to edit pet details", () => {
     // Step 1: Navigate to the specific owner's page which lists pets
-    cy.visit("https://prod.devopshub.org/");
+    cy.visit("/");
 
     // Step 2: Interact with the dropdown menu to find all owners
     cy.get(

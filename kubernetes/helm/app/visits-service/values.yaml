@@ -1,13 +1,14 @@
 green:
-  enabled: false
+  enabled: true
 
 blue:
-  enabled: false
+  enabled: true
 
 productionSlot: blue
 
 database:
-  uri: mysql.spring-petclinic.svc.cluster.local
+  uri_env_blue: mysql-prod.prod-db
+  uri_env_green: mysql-stage.stage-db
   port: 3306
   username: root
   password:
@@ -18,15 +19,14 @@ microservice:
   name: visits-service
   namespace: spring-petclinic
   replicaCount: 1
+  current_environment_blue: prod
+  current_environment_green: stage
   resources:
     limits:
-      # memory: 1Gi
-      memory: 800Mi
+      limits:
+      memory: 1Gi
     requests:
-      # memory: 1Gi
-      memory: 800Mi
-
-  uri: visits-service.spring-petclinic.svc.cluster.local
+      memory: 1Gi
   image:
     repository_blue: j4ro123/spring-petclinic-visits-service
     repository_green: j4ro123/spring-petclinic-visits-service

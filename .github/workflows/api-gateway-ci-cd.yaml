@@ -210,22 +210,16 @@ jobs:
           currentSlot=`(helm get values --all ${{env.APP_NAME_SHORT}} | grep -Po 'productionSlot: \K.*')`
           echo $currentSlot
           if [ "$currentSlot" == "blue" ]; then
-              oldSlot="blue"
-              newSlot="green"
-              deploymentOption=$newSlot.enabled=true
-              echo $deploymentOption
-              echo "oldSlot=$oldSlot" >> $GITHUB_ENV
-              echo "newSlot=$newSlot" >> $GITHUB_ENV
-              helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.image.repository_green=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_green=1.${{ github.run_number }} --reuse-values
+            oldSlot="blue"
+            newSlot="green"
           else
-              oldSlot="green"
-              newSlot="blue"
-              deploymentOption=$newSlot.enabled=true
-              echo $deploymentOption
-              echo "oldSlot=$oldSlot" >> $GITHUB_ENV
-              echo "newSlot=$newSlot" >> $GITHUB_ENV
-              helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.image.repository_blue=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_blue=1.${{ github.run_number }} --reuse-values
+            oldSlot="green"
+            newSlot="blue"
           fi
+
+          echo "oldSlot=$oldSlot" >> $GITHUB_ENV
+          echo "newSlot=$newSlot" >> $GITHUB_ENV
+          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.image.repository_${newSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${newSlot}=1.${{ github.run_number }} --reuse-values
 
       - name: Manual aprroval
         uses: trstringer/manual-approval@v1
@@ -244,7 +238,39 @@ jobs:
         run: |
           deploymentOption=productionSlot=$newSlot
           echo $deploymentOption
-          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --reuse-values
+
+          # Deploy the new version (either blue or green) and wait for it to become ready
+          helm upgrade "${{env.APP_NAME_SHORT}}" ./kubernetes/helm/app/"${{env.APP_NAME_SHORT}}" --set microservice.profile_env_${newSlot}=kubernetes --set microservice.current_environment_${newSlot}=prod --reuse-values
+          if ! kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${newSlot}-prod -n ${{env.NAMESPACE}} --timeout=60s; then
+            echo "Deployment failed. Starting rollback..."
+            helm rollback "${{env.APP_NAME_SHORT}}"  # This rolls back to the previous revision
+            exit 1
+          fi
+
+          # Swap selectors to direct production traffic to the new version (newSlot)
+          helm upgrade "${{env.APP_NAME_SHORT}}" ./kubernetes/helm/app/"${{env.APP_NAME_SHORT}}" --set "$deploymentOption" --reuse-values
+
+          # Allow some time for Kubernetes to apply the Service update
+          sleep 5
+
+          # Fetch the current selector for the production service and compare it to the desired state
+          CURRENT_SELECTOR=$(kubectl get svc "${{env.APP_NAME_SHORT}}-prod" -n ${{env.NAMESPACE}} -o=jsonpath='{.spec.selector.slot}')
+
+          if [[ "$CURRENT_SELECTOR" == *"${newSlot}"* ]]; then
+            echo "Service selector updated successfully."
+          else
+            echo "Service selector not updated. Starting rollback..."
+            helm rollback "${{env.APP_NAME_SHORT}}"  # This rolls back to the previous revision
+            exit 1
+          fi
+
+          # Update the old version (oldSlot) to the stage configuration and with new app version, next wait for it to become ready
+          helm upgrade "${{env.APP_NAME_SHORT}}" ./kubernetes/helm/app/"${{env.APP_NAME_SHORT}}" --set microservice.profile_env_${oldSlot}=kubernetes-stage --set microservice.current_environment_${newSlot}=stage --set microservice.image.repository_${oldSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${oldSlot}=1.${{ github.run_number }} --reuse-values
+          if ! kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${oldSlot}-stage -n ${{env.NAMESPACE}} --timeout=60s; then
+            echo "Deployment failed. Starting rollback..."
+            helm rollback "${{env.APP_NAME_SHORT}}"  # This rolls back to the previous revision
+            exit 1
+          fi
 
       # - name: Cleanup Old slot
       #   run: |

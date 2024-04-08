@@ -1,7 +1,7 @@
 describe("Owner Information Editing", () => {
   it("should edit an existing owner", () => {
     // Step 1: Visit the homepage
-    cy.visit("https://prod.devopshub.org/");
+    cy.visit("/");
 
     // Step 2: Interact with the dropdown menu to find all owners
     cy.get(

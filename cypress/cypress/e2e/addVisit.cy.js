@@ -2,7 +2,7 @@ describe("Add Visit for a Pet", () => {
   it("allows a user to add a new visit for a pet", () => {
     // Step 1: Navigate to the specific pet's page which lists visits
     // This assumes that the pet's page has a URL you can directly navigate to
-    cy.visit("https://prod.devopshub.org/");
+    cy.visit("/");
     cy.get(
       "body layout-nav:first nav:first div:eq(1) ul:first li:eq(1) a:first"
     ).click(); // Replace with your actual dropdown selector
