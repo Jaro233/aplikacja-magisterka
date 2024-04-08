@@ -36,17 +36,15 @@ spec:
             httpGet:
               path: /actuator/health/liveness
               port: {{ .Values.microservice.containerPort }}
-            initialDelaySeconds: 60
-            periodSeconds: 10
-            timeoutSeconds: 2
-            failureThreshold: 5
+            initialDelaySeconds: 90
+            periodSeconds: 5
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: {{ .Values.microservice.containerPort }}
-            initialDelaySeconds: 20
-            periodSeconds: 10
-            timeoutSeconds: 2
-            successThreshold: 1
-            failureThreshold: 3
+            initialDelaySeconds: 15
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sh", "-c", "sleep 10"]
 {{ end }}
