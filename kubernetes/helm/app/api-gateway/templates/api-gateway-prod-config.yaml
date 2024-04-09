@@ -1,0 +1,8 @@
+# ConfigMap for production
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-blue-config
+  namespace: {{ .Values.microservice.namespace }}
+data:
+  SPRING_PROFILES_ACTIVE: {{ if eq .Values.productionSlot "blue" }}kubernetes{{ else }}kubernetes-stage{{ end }}

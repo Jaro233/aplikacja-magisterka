@@ -29,9 +29,12 @@ spec:
               memory: {{.Values.microservice.resources.requests.memory}}
           ports:
             - containerPort: {{.Values.microservice.containerPort}}
-          env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: {{.Values.microservice.profile_env_blue}}
+          envFrom:
+          - configMapRef:
+              name: api-gateway-blue-config
+          # env:
+          #   - name: SPRING_PROFILES_ACTIVE
+          #     value: {{.Values.microservice.profile_env_blue}}
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
