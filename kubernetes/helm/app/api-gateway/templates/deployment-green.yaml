@@ -8,6 +8,11 @@ metadata:
   namespace: {{.Values.microservice.namespace}}
 spec:
   replicas: {{.Values.microservice.replicaCount}}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: {{.Values.microservice.name}}
