@@ -6,6 +6,10 @@ metadata:
   labels:
     app: {{.Values.microservice.name}}
   namespace: {{.Values.microservice.namespace}}
+  annotations:
+    # Annotation to specify which ConfigMap to watch for changes
+    # Reloader will trigger a rolling update if this ConfigMap changes
+    configmap.reloader.stakater.com/reload: "api-gateway-green-config"
 spec:
   replicas: {{.Values.microservice.replicaCount}}
   selector:

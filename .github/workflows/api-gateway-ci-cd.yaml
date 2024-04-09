@@ -258,7 +258,7 @@ jobs:
           # fi
 
           # Swap selectors to direct production traffic to the new version (newSlot)
-          helm upgrade "${{env.APP_NAME_SHORT}}" ./kubernetes/helm/app/"${{env.APP_NAME_SHORT}}" --set "$deploymentOption"
+          helm upgrade "${{env.APP_NAME_SHORT}}" ./kubernetes/helm/app/"${{env.APP_NAME_SHORT}}" --set "$deploymentOption" --reuse-values
 
           # Fetch the current selector for the production service and compare it to the desired state
           CURRENT_SELECTOR=$(kubectl get svc "${{env.APP_NAME_SHORT}}-prod" -n ${{env.NAMESPACE}} -o=jsonpath='{.spec.selector.slot}')
