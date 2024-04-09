@@ -249,10 +249,10 @@ jobs:
           echo $deploymentOption
 
           # Deploy the new version (either blue or green) and wait for it to become ready
-          helm upgrade "${{env.APP_NAME_SHORT}}" ./kubernetes/helm/app/"${{env.APP_NAME_SHORT}}" --set microservice.profile_env_${newSlot}=kubernetes --set microservice.current_environment_${newSlot}=prod --reuse-values
+          helm upgrade "${{env.APP_NAME_SHORT}}" ./kubernetes/helm/app/"${{env.APP_NAME_SHORT}}" --set microservice.profile_env_${newSlot}=kubernetes --set microservice.current_environment_${newSlot}=prod --set microservice.profile_env_${oldSlot}=kubernetes-stage --set microservice.current_environment_${oldSlot}=stage --set microservice.image.repository_${oldSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${oldSlot}=1.${{ github.run_number }} --reuse-values
 
-          # Update the old version (oldSlot) to the stage configuration and with new app version, next wait for it to become ready
-          helm upgrade "${{env.APP_NAME_SHORT}}" ./kubernetes/helm/app/"${{env.APP_NAME_SHORT}}" --set microservice.profile_env_${oldSlot}=kubernetes-stage --set microservice.current_environment_${oldSlot}=stage --set microservice.image.repository_${oldSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${oldSlot}=1.${{ github.run_number }} --reuse-values
+          # # Update the old version (oldSlot) to the stage configuration and with new app version, next wait for it to become ready
+          # helm upgrade "${{env.APP_NAME_SHORT}}" ./kubernetes/helm/app/"${{env.APP_NAME_SHORT}}" --set microservice.profile_env_${oldSlot}=kubernetes-stage --set microservice.current_environment_${oldSlot}=stage --set microservice.image.repository_${oldSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${oldSlot}=1.${{ github.run_number }} --reuse-values
 
           # Start rollout status checks in the background for both deployments
           kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${newSlot}-prod -n ${{env.NAMESPACE}} &
