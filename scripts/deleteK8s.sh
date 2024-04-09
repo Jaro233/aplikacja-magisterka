@@ -14,13 +14,13 @@ action_helm="uninstall"
 
 # # Delete ingress and cluster resources in the init-ingress-and-cluster directory
 # echo "Deleting ingress and clusterissuer resources in init-ingress-and-clusterissuer directory..."
-# kubectl ${action_kubectl}  -f init-ingress-and-clusterissuer/
+kubectl ${action_kubectl}  -f init-ingress-and-clusterissuer/
 
 # Undeploy app
-helm ${action_helm} visits-service
-helm ${action_helm} vets-service 
-helm ${action_helm} customers-service
-helm ${action_helm} api-gateway 
+# helm ${action_helm} visits-service
+# helm ${action_helm} vets-service 
+# helm ${action_helm} customers-service
+# helm ${action_helm} api-gateway 
 
 # # Uninstall nginx-ingress controller
 # helm ${action_helm} ingress-nginx -n ingress-nginx
