@@ -24,9 +24,9 @@ microservice:
   resources:
     limits:
       memory: 1Gi
-      cpu: 700m
+      cpu: 500m
     requests:
-      cpu: 700m
+      cpu: 500m
       memory: 1Gi
   image:
     repository_blue: j4ro123/spring-petclinic-vets-service
