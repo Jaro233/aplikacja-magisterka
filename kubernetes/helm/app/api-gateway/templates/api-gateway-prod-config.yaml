@@ -5,4 +5,4 @@ metadata:
   name: api-gateway-blue-config
   namespace: {{ .Values.microservice.namespace }}
 data:
-  SPRING_PROFILES_ACTIVE: {{ if eq .Values.productionSlot "blue" }}kubernetes{{ else }}kubernetes-stage{{ end }}
+  SPRING_PROFILES_ACTIVE: {{ if eq .Values.productionSlotConfig "blue" }}kubernetes{{ else }}kubernetes-stage{{ end }}

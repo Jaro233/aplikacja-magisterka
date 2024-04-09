@@ -5,6 +5,7 @@ blue:
   enabled: true
 
 productionSlot: blue
+productionSlotConfig: blue
 
 microservice:
   name: api-gateway
