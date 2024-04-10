@@ -21,6 +21,7 @@ spec:
       labels:
         app: {{.Values.microservice.name}}
         slot: blue
+        env: {{.Values.microservice.current_environment_blue}}
     spec:
       containers:
         - name: {{.Values.microservice.name}}
