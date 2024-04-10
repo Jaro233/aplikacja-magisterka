@@ -254,11 +254,11 @@ jobs:
           # Update the old version (oldSlot) to the stage configuration and with new app version, next wait for it to become ready
           helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.profile_env_${oldSlot}=kubernetes-stage --reuse-values
 
-          Start rollout status checks in the background for both deployments
+          # Start rollout status checks in the background for both deployments
           kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${newSlot} -n ${{env.NAMESPACE}} &
           PID1=$!
 
-          kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${oldSlot} -n ${{env.NAMESPACE}} &
+          # kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${oldSlot} -n ${{env.NAMESPACE}} &
           PID2=$!
 
           # Wait for both background processes to complete
