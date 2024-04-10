@@ -251,7 +251,7 @@ jobs:
           # Deploy the new version (either blue or green) and wait for it to become ready
           helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.profile_env_${newSlot}=kubernetes --set microservice.current_environment_${newSlot}=prod --set microservice.image.repository_${newSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${newSlot}=1.${{ github.run_number }} --reuse-values
 
-          if ! kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${newSlot}-stage -n ${{env.NAMESPACE}}; then
+          if ! kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${newSlot}-prod -n ${{env.NAMESPACE}}; then
             echo "Deployment failed. Starting rollback..."
             helm rollback "${{env.APP_NAME_SHORT}}"  # This rolls back to the previous revision
             exit 1
