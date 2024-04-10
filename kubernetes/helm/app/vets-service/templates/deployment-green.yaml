@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{.Values.microservice.name}}-green-{{.Values.microservice.current_environment_green}}
+  name: {{.Values.microservice.name}}-green
   labels:
     app: {{.Values.microservice.name}}
   namespace: {{.Values.microservice.namespace}}
@@ -16,14 +16,17 @@ spec:
       labels:
         app: {{.Values.microservice.name}}
         slot: green
+        env: {{.Values.microservice.current_environment_green}}
     spec:
       containers:
         - name: {{.Values.microservice.name}}
           image: "{{ .Values.microservice.image.repository_green }}:{{ .Values.microservice.image.tag_green }}"
           resources:
             limits:
+              cpu: {{.Values.microservice.resources.limits.cpu}}
               memory: {{.Values.microservice.resources.limits.memory}}
             requests:
+              cpu: {{.Values.microservice.resources.requests.cpu}}
               memory: {{.Values.microservice.resources.requests.memory}}
           ports:
             - containerPort: {{.Values.microservice.containerPort}}
