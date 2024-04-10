@@ -42,7 +42,7 @@ spec:
             httpGet:
               path: /actuator/health/liveness
               port: {{ .Values.microservice.containerPort }}
-            initialDelaySeconds: 90
+            initialDelaySeconds: 45
             periodSeconds: 5
           readinessProbe:
             httpGet:

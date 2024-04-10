@@ -222,25 +222,25 @@ jobs:
 
           echo "oldSlot=$oldSlot" >> $GITHUB_ENV
           echo "newSlot=$newSlot" >> $GITHUB_ENV
-          # helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.image.repository_${newSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${newSlot}=1.${{ github.run_number }} --reuse-values
+          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.image.repository_${newSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${newSlot}=1.${{ github.run_number }} --reuse-values
 
-          # if ! kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${newSlot}-stage -n ${{env.NAMESPACE}}; then
-          #   echo "Deployment failed. Starting rollback..."
-          #   helm rollback "${{env.APP_NAME_SHORT}}"  # This rolls back to the previous revision
-          #   exit 1
-          # fi
+          if ! kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${newSlot}-stage -n ${{env.NAMESPACE}}; then
+            echo "Deployment failed. Starting rollback..."
+            helm rollback "${{env.APP_NAME_SHORT}}"  # This rolls back to the previous revision
+            exit 1
+          fi
 
-      # - name: Manual aprroval
-      #   uses: trstringer/manual-approval@v1
-      #   with:
-      #     secret: ${{ github.TOKEN }}
-      #     approvers: Jaro233
-      #     minimum-approvals: 1
-      #     issue-title: "Deploying ${{env.APP_NAME_SHORT}} v1.${{ github.run_number }} to prod from staging"
-      #     issue-body: "Please approve or deny the deployment of version v1.${{ github.run_number }}"
-      #     exclude-workflow-initiator-as-approver: false
-      #     additional-approved-words: ""
-      #     additional-denied-words: ""
+      - name: Manual aprroval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: Jaro233
+          minimum-approvals: 1
+          issue-title: "Deploying ${{env.APP_NAME_SHORT}} v1.${{ github.run_number }} to prod from staging"
+          issue-body: "Please approve or deny the deployment of version v1.${{ github.run_number }}"
+          exclude-workflow-initiator-as-approver: false
+          additional-approved-words: ""
+          additional-denied-words: ""
 
       - name: Swap Production to New Version
         # if: success() # Only proceed if tests pass
@@ -248,11 +248,11 @@ jobs:
           deploymentOption=productionSlot=$newSlot
           echo $deploymentOption
 
-          # Deploy the new version (either blue or green) and wait for it to become ready
-          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.profile_env_${newSlot}=kubernetes --set microservice.current_environment_${newSlot}=prod --set microservice.image.repository_${newSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${newSlot}=1.${{ github.run_number }} --set microservice.profile_env_${oldSlot}=kubernetes-stage --set microservice.current_environment_${oldSlot}=stage --set microservice.image.repository_${oldSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${oldSlot}=1.${{ github.run_number }} --reuse-values
-
           # Update the old version (oldSlot) to the stage configuration and with new app version, next wait for it to become ready
-          # helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}}  --reuse-values
+          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.profile_env_${oldSlot}=kubernetes-stage --set microservice.current_environment_${oldSlot}=stage --set microservice.image.repository_${oldSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${oldSlot}=1.${{ github.run_number }} --reuse-values
+
+          # Deploy the new version (either blue or green) and wait for it to become ready
+          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.profile_env_${newSlot}=kubernetes --set microservice.current_environment_${newSlot}=prod --set microservice.image.repository_${newSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${newSlot}=1.${{ github.run_number }} --reuse-values
 
           # Start rollout status checks in the background for both deployments
           kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${newSlot} -n ${{env.NAMESPACE}} &
