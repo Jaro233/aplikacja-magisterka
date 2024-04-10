@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{.Values.microservice.name}}-blue-{{.Values.microservice.current_environment_blue}}
+  name: {{.Values.microservice.name}}-blue
   labels:
     app: {{.Values.microservice.name}}
   namespace: {{.Values.microservice.namespace}}

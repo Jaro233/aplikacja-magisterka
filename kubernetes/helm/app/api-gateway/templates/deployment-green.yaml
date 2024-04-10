@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{.Values.microservice.name}}-green-{{.Values.microservice.current_environment_green}}
+  name: {{.Values.microservice.name}}-green
   labels:
     app: {{.Values.microservice.name}}
   namespace: {{.Values.microservice.namespace}}
