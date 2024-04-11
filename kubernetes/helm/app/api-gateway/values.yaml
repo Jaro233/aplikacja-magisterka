@@ -10,15 +10,15 @@ productionSlotConfig: blue
 microservice:
   name: api-gateway
   namespace: spring-petclinic
-  replicaCount: 1
+  replicaCount: 2
   current_environment_blue: prod
   current_environment_green: stage
   resources:
     limits:
       memory: 1Gi
-      cpu: 300m
+      cpu: 400m
     requests:
-      cpu: 300m
+      cpu: 400m
       memory: 1Gi
   profile_env_blue: kubernetes
   profile_env_green: kubernetes-stage
