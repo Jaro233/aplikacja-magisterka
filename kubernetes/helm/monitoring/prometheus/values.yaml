@@ -15,21 +15,34 @@ serverFiles:
       - job_name: api-gateway
         metrics_path: /actuator/prometheus
         static_configs:
-          - targets: ["api-gateway.spring-petclinic.svc.cluster.local:8080"]
+          - targets:
+              ["api-gateway-prod.spring-petclinic.svc.cluster.local:8080"]
 
       - job_name: customers-service
         metrics_path: /actuator/prometheus
         static_configs:
           - targets:
-              ["customers-service.spring-petclinic.svc.cluster.local:8081"]
+              ["customers-service-prod.spring-petclinic.svc.cluster.local:8081"]
 
       - job_name: visits-service
         metrics_path: /actuator/prometheus
         static_configs:
-          - targets: ["visits-service.spring-petclinic.svc.cluster.local:8082"]
+          - targets:
+              ["visits-service-prod.spring-petclinic.svc.cluster.local:8082"]
 
       - job_name: vets-service
         metrics_path: /actuator/prometheus
         static_configs:
-          - targets: ["vets-service.spring-petclinic.svc.cluster.local:8083"]
+          - targets:
+              ["vets-service-prod.spring-petclinic.svc.cluster.local:8083"]
+
+server:
+  resources:
+    limits:
+      cpu: 400m
+      memory: 1Gi
+    requests:
+      cpu: 400m
+      memory: 1Gi
+
 forceNamespace: "monitoring"

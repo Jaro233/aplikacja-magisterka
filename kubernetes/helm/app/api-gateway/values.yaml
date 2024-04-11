@@ -16,9 +16,9 @@ microservice:
   resources:
     limits:
       memory: 1Gi
-      cpu: 500m
+      cpu: 300m
     requests:
-      cpu: 500m
+      cpu: 300m
       memory: 1Gi
   profile_env_blue: kubernetes
   profile_env_green: kubernetes-stage
