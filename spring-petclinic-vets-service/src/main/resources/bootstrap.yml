@@ -50,3 +50,4 @@ management:
   endpoint:
     restart:
       enabled: true
+# test
