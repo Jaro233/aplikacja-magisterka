@@ -49,5 +49,8 @@ describe("Owner Information Editing", () => {
     cy.get('input[name="address"]').clear().type("123 Updated Address");
     cy.get('input[name="city"]').clear().type("UpdatedCity");
     cy.get('input[name="telephone"]').clear().type("1234567890");
+    cy.get(
+      "body > div > div > div > ui-view > owner-form > form > div:eq(5) > button"
+    ).click();
   });
 });
