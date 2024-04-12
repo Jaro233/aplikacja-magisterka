@@ -21,7 +21,7 @@ env:
   NAMESPACE: spring-petclinic
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CUSTOMERS_SERVICE }}
   SLACK_WEBHOOK_URL: ${{secrets.CUSTOMERS_SERVICE_SLACK_WEBHOOK}}
-  INTEGRATION_TEST_SPEC: cypress/cypress/e2e/addPet.cy.js,cypress/cypress/e2e/editPet.cy.js,cypress/cypress/e2e/registerOwner.cy.js,cypress/cypress/e2e/editOwner.cy.js
+  INTEGRATION_TEST_SPEC: cypress/e2e/addPet.cy.js,cypress/e2e/editPet.cy.js,cypress/e2e/registerOwner.cy.js,cypress/e2e/editOwner.cy.js
 
 jobs:
   # setup:
@@ -355,6 +355,7 @@ jobs:
           config: video=false
           browser: chrome
           spec: ${{env.INTEGRATION_TEST_SPEC}}
+          working-directory: cypress
         env:
           CYPRESS_BASE_URL: "https://stage.devopshub.org"
 

@@ -25,7 +25,7 @@ env:
   NAMESPACE: spring-petclinic
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_VETS_SERVICE}}
   SLACK_WEBHOOK_URL: ${{secrets.VETS_SERVICE_SLACK_WEBHOOK}}
-  INTEGRATION_TEST_SPEC: cypress/cypress/e2e/chechVeterinariesTable.cy.js
+  INTEGRATION_TEST_SPEC: cypress/e2e/chechVeterinariesTable.cy.js
 
 jobs:
   setup:
@@ -359,6 +359,7 @@ jobs:
           config: video=false
           browser: chrome
           spec: ${{env.INTEGRATION_TEST_SPEC}}
+          working-directory: cypress
         env:
           CYPRESS_BASE_URL: "https://stage.devopshub.org"
 
