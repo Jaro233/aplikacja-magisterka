@@ -28,7 +28,9 @@ describe("Owner Information Editing", () => {
     // Step 6: Submit the form
     cy.get(
       "body > div > div > div > ui-view > owner-form > form > div:eq(5) > button"
-    ).click();
+    )
+      .click()
+      .wait(2000);
 
     // Step 7: Verify the changes
     cy.get(
