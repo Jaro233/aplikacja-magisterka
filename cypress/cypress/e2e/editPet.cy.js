@@ -41,7 +41,7 @@ describe("Edit Pet Details", () => {
     cy.get("form").submit().wait(2000);
 
     // Step 10: Assert that the pet's details have been updated
-    cy.contains("George1 Franklin1").click();
+    cy.contains("George Franklin").click();
     cy.contains("New Pet Name").should("exist");
   });
 });
