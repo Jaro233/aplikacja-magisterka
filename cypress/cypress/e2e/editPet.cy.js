@@ -10,7 +10,7 @@ describe("Edit Pet Details", () => {
     cy.contains("All").click(); // Adjust if your link text is different
 
     // Step 3: Click on the specific owner's name
-    cy.contains("George1 Franklin1").click().wait(2000);
+    cy.contains("George Franklin").click().wait(2000);
 
     // Step 4: Click on the "Edit Pet" button for the specific pet
     cy.contains("Edit Pet").click().wait(2000);
