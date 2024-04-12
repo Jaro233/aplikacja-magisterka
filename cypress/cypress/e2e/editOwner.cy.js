@@ -36,5 +36,18 @@ describe("Owner Information Editing", () => {
     ).click();
     cy.get("span:contains('All')").click();
     cy.get("table tbody").contains("td", "George1 Franklin1").should("exist");
+
+    // Step 8: Undo setup
+    cy.contains("George1 Franklin1").click().wait(2000);
+
+    cy.get(
+      "body > div > div > div > ui-view > owner-details > table:first > tbody > tr:eq(4) > td:first > a"
+    ).click();
+
+    cy.get('input[name="firstName"]').clear().type("George");
+    cy.get('input[name="lastName"]').clear().type("Franklin");
+    cy.get('input[name="address"]').clear().type("123 Updated Address");
+    cy.get('input[name="city"]').clear().type("UpdatedCity");
+    cy.get('input[name="telephone"]').clear().type("1234567890");
   });
 });
