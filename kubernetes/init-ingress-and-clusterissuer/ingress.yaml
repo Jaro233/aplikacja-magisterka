@@ -3,9 +3,9 @@ kind: Ingress
 metadata:
   name: api-gateway-ingress
   namespace: spring-petclinic
-  # annotations:
-  #   cert-manager.io/cluster-issuer: "letsencrypt-prod"
-  #   nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 spec:
   ingressClassName: nginx
   rules:
@@ -29,9 +29,9 @@ spec:
                 name: api-gateway-stage
                 port:
                   number: 8080 # use appropriate port
-  # tls:
-  #   - hosts:
-  #       # - "stage.devopshub.org"
-  #       # - "prod.devopshub.org"
-  #       - "*.devopshub.org"
-  #     secretName: spring-petclinic
+  tls:
+    - hosts:
+        # - "stage.devopshub.org"
+        # - "prod.devopshub.org"
+        - "*.devopshub.org"
+      secretName: spring-petclinic

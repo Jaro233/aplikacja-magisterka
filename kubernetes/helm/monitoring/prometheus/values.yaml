@@ -39,10 +39,10 @@ serverFiles:
 server:
   resources:
     limits:
-      cpu: 400m
+      cpu: 500m
       memory: 1Gi
     requests:
-      cpu: 400m
+      cpu: 500m
       memory: 1Gi
 
 forceNamespace: "monitoring"
