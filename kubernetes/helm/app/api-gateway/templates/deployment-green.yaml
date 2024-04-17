@@ -1,4 +1,3 @@
-{{ if .Values.green.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -11,8 +10,8 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 4
-      maxUnavailable: 0
+      maxSurge: 100%
+      maxUnavailable: 0%
   selector:
     matchLabels:
       app: {{.Values.microservice.name}}
@@ -53,4 +52,3 @@ spec:
             preStop:
               exec:
                 command: ["sh", "-c", "sleep 10"]
-{{ end }}

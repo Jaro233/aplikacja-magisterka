@@ -1,9 +1,3 @@
-green:
-  enabled: true
-
-blue:
-  enabled: true
-
 productionSlot: blue
 
 database:
@@ -18,7 +12,7 @@ database:
 microservice:
   name: customers-service
   namespace: spring-petclinic
-  replicaCount: 2
+  replicaCount: 1
   current_environment_blue: prod
   current_environment_green: stage
   resources:

@@ -1,8 +1,0 @@
-# ConfigMap for staging
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: api-gateway-green-config
-  namespace: {{ .Values.microservice.namespace }}
-data:
-  SPRING_PROFILES_ACTIVE: {{ if eq .Values.productionSlotConfig "blue" }}kubernetes-stage{{ else }}kubernetes{{ end }}

@@ -32,27 +32,38 @@ roleRef:
   apiGroup: ""
 
 ---
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+apiVersion: v1
+kind: ConfigMap
 metadata:
-  namespace: prod-db
-  name: pod-exec-role
-rules:
-  - apiGroups: [""]
-    resources: ["pods/exec"]
-    verbs: ["create"]
+  name: aws-auth
+  namespace: kube-system
+data:
+  mapRoles: |
+    - rolearn: arn:aws:iam::941391622677:role/lambda_eks_role
+      username: lambda
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: Role
 metadata:
-  name: pod-exec-role-binding
+  name: lambda-access
+  namespace: prod-db
+rules:
+  - apiGroups: [""]
+    resources: ["pods/exec", "pods", "pods/log", "pods/status"]
+    verbs: ["get", "watch", "list", "create", "delete"]
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: lambda-user-role-binding
   namespace: prod-db
 subjects:
-  - kind: ServiceAccount
-    name: your-lambda-sa # Name of the service account used by Lambda
-    namespace: lambda-namespace
+  - kind: User
+    name: lambda
+    apiGroup: rbac.authorization.k8s.io
 roleRef:
   kind: Role
-  name: pod-exec-role
+  name: lambda-access
   apiGroup: rbac.authorization.k8s.io

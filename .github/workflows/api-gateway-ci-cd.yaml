@@ -24,132 +24,132 @@ env:
   SLACK_WEBHOOK_URL: ${{secrets.API_GATEWAY_SLACK_WEBHOOK}}
 
 jobs:
-  # setup:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v4
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
 
-  #     - name: Set up Java 11
-  #       uses: actions/setup-java@v4
-  #       with:
-  #         distribution: "adopt" # See 'Supported distributions' for available options
-  #         java-version: "11"
-  #         cache: "maven"
-  #         cache-dependency-path: "${{env.APP_PATH}}/pom.xml"
+      - name: Set up Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: "adopt" # See 'Supported distributions' for available options
+          java-version: "11"
+          cache: "maven"
+          cache-dependency-path: "${{env.APP_PATH}}/pom.xml"
 
-  #     - name: Notify Slack on Failure
-  #       if: failure()
-  #       uses: 8398a7/action-slack@v3
-  #       with:
-  #         status: custom
-  #         fields: workflow,job,commit,repo,ref,author,took
-  #         custom_payload: |
-  #           {
-  #             "attachments": [{
-  #               "color": "danger",
-  #               "text": "Job for ${{ env.APP_NAME_SHORT }} failed :x:"
-  #             }]
-  #           }
-  #       env:
-  #         SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: workflow,job,commit,repo,ref,author,took
+          custom_payload: |
+            {
+              "attachments": [{
+                "color": "danger",
+                "text": "Job for ${{ env.APP_NAME_SHORT }} failed :x:"
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
 
-  # integration_tests:
-  #   runs-on: ubuntu-latest
-  #   needs: setup
-  #   steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v4
+  integration_tests:
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
 
-  #     - name: Set up Java 11
-  #       uses: actions/setup-java@v4
-  #       with:
-  #         distribution: "adopt" # See 'Supported distributions' for available options
-  #         java-version: "11"
-  #         cache: "maven"
-  #         cache-dependency-path: "${{env.APP_PATH}}/pom.xml"
+      - name: Set up Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: "adopt" # See 'Supported distributions' for available options
+          java-version: "11"
+          cache: "maven"
+          cache-dependency-path: "${{env.APP_PATH}}/pom.xml"
 
-  #     - name: Run tests
-  #       run: cd ${{env.APP_PATH}} && mvn test
+      - name: Run tests
+        run: cd ${{env.APP_PATH}} && mvn test
 
-  #     - name: Notify Slack on Failure
-  #       if: failure()
-  #       uses: 8398a7/action-slack@v3
-  #       with:
-  #         status: custom
-  #         fields: workflow,job,commit,repo,ref,author,took
-  #         custom_payload: |
-  #           {
-  #             "attachments": [{
-  #               "color": "danger",
-  #               "text": "Job for ${{ env.APP_NAME_SHORT }} failed :x:"
-  #             }]
-  #           }
-  #       env:
-  #         SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: workflow,job,commit,repo,ref,author,took
+          custom_payload: |
+            {
+              "attachments": [{
+                "color": "danger",
+                "text": "Job for ${{ env.APP_NAME_SHORT }} failed :x:"
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
 
-  # code_quality_and_security_scanning:
-  #   runs-on: ubuntu-latest
-  #   needs: integration_tests
-  #   steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v4
+  code_quality_and_security_scanning:
+    runs-on: ubuntu-latest
+    needs: integration_tests
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
 
-  #     - name: Set up Java 17
-  #       uses: actions/setup-java@v4
-  #       with:
-  #         distribution: "adopt"
-  #         java-version: "17"
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "adopt"
+          java-version: "17"
 
-  #     - name: Run OWASP Dependency Check
-  #       run: |
-  #         # Download and unzip Dependency-Check
-  #         wget https://github.com/jeremylong/DependencyCheck/releases/download/v9.0.9/dependency-check-9.0.9-release.zip
-  #         unzip dependency-check-9.0.9-release.zip
+      - name: Run OWASP Dependency Check
+        run: |
+          # Download and unzip Dependency-Check
+          wget https://github.com/jeremylong/DependencyCheck/releases/download/v9.0.9/dependency-check-9.0.9-release.zip
+          unzip dependency-check-9.0.9-release.zip
 
-  #         # Run Dependency-Check
-  #         ./dependency-check/bin/dependency-check.sh --project "${{env.APP_NAME}}" --scan "${{env.APP_PATH}}" --nvdApiKey "${{ secrets.NVD_API_KEY }}" --format "HTML" --out "${{env.APP_PATH}}/reports"
+          # Run Dependency-Check
+          ./dependency-check/bin/dependency-check.sh --project "${{env.APP_NAME}}" --scan "${{env.APP_PATH}}" --nvdApiKey "${{ secrets.NVD_API_KEY }}" --format "HTML" --out "${{env.APP_PATH}}/reports"
 
-  #     - name: Upload Dependency Check Report
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         name: dependency-check-report
-  #         path: ${{env.APP_PATH}}/reports/dependency-check-report.html
+      - name: Upload Dependency Check Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: dependency-check-report
+          path: ${{env.APP_PATH}}/reports/dependency-check-report.html
 
-  #     - name: Run SonarCloud analysis
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_API_GATEWAY }}
-  #       run: |
-  #         cd ${{env.APP_PATH}} && mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-  #         -Dsonar.projectKey=${{env.SONAR_PROJECT_KEY}} \
-  #         -Dsonar.organization=jaro233 \
-  #         -Dsonar.host.url=https://sonarcloud.io \
-  #         -Dsonar.login=${{ env.SONAR_TOKEN }} \
-  #         -Dsonar.qualitygate.wait=true \
-  #         -Dsonar.dependencyCheck.reportPath=.${{env.APP_PATH}}/reports/dependency-check-report.html
+      - name: Run SonarCloud analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_API_GATEWAY }}
+        run: |
+          cd ${{env.APP_PATH}} && mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          -Dsonar.projectKey=${{env.SONAR_PROJECT_KEY}} \
+          -Dsonar.organization=jaro233 \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.login=${{ env.SONAR_TOKEN }} \
+          -Dsonar.qualitygate.wait=true \
+          -Dsonar.dependencyCheck.reportPath=.${{env.APP_PATH}}/reports/dependency-check-report.html
 
-  #     - name: Notify Slack on Failure
-  #       if: failure()
-  #       uses: 8398a7/action-slack@v3
-  #       with:
-  #         status: custom
-  #         fields: workflow,job,commit,repo,ref,author,took
-  #         custom_payload: |
-  #           {
-  #             "attachments": [{
-  #               "color": "danger",
-  #               "text": "Job for ${{ env.APP_NAME_SHORT }} failed :x:"
-  #             }]
-  #           }
-  #       env:
-  #         SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: workflow,job,commit,repo,ref,author,took
+          custom_payload: |
+            {
+              "attachments": [{
+                "color": "danger",
+                "text": "Job for ${{ env.APP_NAME_SHORT }} failed :x:"
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
 
   build_and_push:
     runs-on: ubuntu-latest
     outputs:
       ecr-registry: ${{ steps.login-ecr-private.outputs.registry }}
-    # needs: code_quality_and_security_scanning
+    needs: code_quality_and_security_scanning
     # needs: integration_tests
     steps:
       - name: Check out repository code
@@ -207,72 +207,72 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
 
-  # docker_image_scanning:
-  #   runs-on: ubuntu-latest
-  #   needs: build_and_push
-  #   steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v4
+  docker_image_scanning:
+    runs-on: ubuntu-latest
+    needs: build_and_push
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
 
-  #     - name: Configure AWS Credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ${{ secrets.AWS_REGION }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-  #     - name: Login to Amazon ECR Private
-  #       id: login-ecr-private
-  #       uses: aws-actions/amazon-ecr-login@v2
-  #       with:
-  #         registry-type: private
+      - name: Login to Amazon ECR Private
+        id: login-ecr-private
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: private
 
-  #     - name: Notify Slack on Failure
-  #       if: failure()
-  #       uses: 8398a7/action-slack@v3
-  #       with:
-  #         status: custom
-  #         fields: workflow,job,commit,repo,ref,author,took
-  #         custom_payload: |
-  #           {
-  #             "attachments": [{
-  #               "color": "danger",
-  #               "text": "Job for ${{ env.APP_NAME_SHORT }} failed :x:"
-  #             }]
-  #           }
-  #       env:
-  #         SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: workflow,job,commit,repo,ref,author,took
+          custom_payload: |
+            {
+              "attachments": [{
+                "color": "danger",
+                "text": "Job for ${{ env.APP_NAME_SHORT }} failed :x:"
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
 
-  #     - name: Scan the Docker image with Trivy
-  #       uses: aquasecurity/trivy-action@master
-  #       with:
-  #         image-ref: ${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}:1.${{ github.run_number }}
-  #         format: "table"
-  #         exit-code: "0"
-  #         ignore-unfixed: true
-  #         vuln-type: "os,library"
-  #         severity: "CRITICAL,HIGH"
+      - name: Scan the Docker image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}}:1.${{ github.run_number }}
+          format: "table"
+          exit-code: "0"
+          ignore-unfixed: true
+          vuln-type: "os,library"
+          severity: "CRITICAL,HIGH"
 
-  #     - name: Notify Slack on Failure
-  #       if: failure()
-  #       uses: 8398a7/action-slack@v3
-  #       with:
-  #         status: custom
-  #         fields: workflow,job,commit,repo,ref,author,took
-  #         custom_payload: |
-  #           {
-  #             "attachments": [{
-  #               "color": "danger",
-  #               "text": "Job for ${{ env.APP_NAME_SHORT }} failed :x:"
-  #             }]
-  #           }
-  #       env:
-  #         SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: workflow,job,commit,repo,ref,author,took
+          custom_payload: |
+            {
+              "attachments": [{
+                "color": "danger",
+                "text": "Job for ${{ env.APP_NAME_SHORT }} failed :x:"
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
 
   deployment:
     runs-on: ubuntu-latest
-    # needs: docker_image_scanning
-    needs: build_and_push
+    needs: docker_image_scanning
+    # needs: build_and_push
     permissions:
       issues: write
     steps:
@@ -309,65 +309,17 @@ jobs:
           aws eks update-kubeconfig --name ${{ secrets.CLUSTER_NAME }}
 
       - name: Deploy to Staging
-        run: |
-          currentSlot=`(helm get values --all ${{env.APP_NAME_SHORT}} | grep -Po 'productionSlot: \K.*')`
-          echo $currentSlot
-          if [ "$currentSlot" == "blue" ]; then
-            oldSlot="blue"
-            newSlot="green"
-          else
-            oldSlot="green"
-            newSlot="blue"
-          fi
-
-          echo "oldSlot=$oldSlot" >> $GITHUB_ENV
-          echo "newSlot=$newSlot" >> $GITHUB_ENV
-          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.image.repository_${newSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${newSlot}=1.${{ github.run_number }} --reuse-values
-
-          if ! kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${newSlot} -n ${{env.NAMESPACE}} --timeout=180s; then
-            echo "Deployment failed. Starting rollback..."
-            helm rollback "${{env.APP_NAME_SHORT}}"  # This rolls back to the previous revision
-            exit 1
-          fi
+        env:
+          DEPLOY_ONLY: "true"
+          NAMESPACE: ${{env.NAMESPACE}}
+          ECR_REGISTRY: ${{ steps.login-ecr-private.outputs.registry }}
+          ECR_REPO_NAME: ${{env.ECR_REPO_NAME}}
+          REPOSITORY_TAG: ${{github.run_number}}
+          APP_NAME_SHORT: ${{env.APP_NAME_SHORT}}
+        run: ./scripts/frontendBlueGreenDeployment.sh
 
       - name: Check if all stage pods are running
-        run: |
-          set -e
-          TIMEOUT=300 # Set timeout to 5 minutes.
-          INTERVAL=10 # Check every 10 seconds.
-          end=$((SECONDS+TIMEOUT))
-          while [ $SECONDS -lt $end ]; do
-            # Get the status of pods with the env=stage label
-            POD_STATUSES=$(kubectl get pods -l env=stage -o=jsonpath='{.items[*].status.phase}')
-            
-            # Check if all pods are in the Running state
-            if [[ $(echo $POD_STATUSES | grep -c "Running") -eq $(echo $POD_STATUSES | wc -w) ]]; then
-              echo "All pods with label env=stage are running."
-              break
-            else
-              echo "Waiting for all pods with label env=stage to be in Running state..."
-            fi
-            
-            # Exit loop if timeout is reached
-            if [ $SECONDS -ge $end ]; then
-              echo "Timeout reached. Not all pods are in Running state."
-              exit 1
-            fi
-            
-            sleep $INTERVAL
-          done
-
-      # - name: Manual aprroval
-      #   uses: trstringer/manual-approval@v1
-      #   with:
-      #     secret: ${{ github.TOKEN }}
-      #     approvers: Jaro233
-      #     minimum-approvals: 1
-      #     issue-title: "Deploying ${{env.APP_NAME_SHORT}} v1.${{ github.run_number }} to prod from staging"
-      #     issue-body: "Please approve or deny the deployment of version v1.${{ github.run_number }}"
-      #     exclude-workflow-initiator-as-approver: false
-      #     additional-approved-words: ""
-      #     additional-denied-words: ""
+        run: ./scripts/checkAllStagePodsRunning.sh
 
       - name: Run Integration Tests
         uses: cypress-io/github-action@v6
@@ -381,53 +333,14 @@ jobs:
 
       - name: Swap Production to New Version
         if: success() # Only proceed if tests pass
-        run: |
-          deploymentOption=productionSlot=$newSlot
-          echo $deploymentOption
-
-          # Deploy the new version (either blue or green) and wait for it to become ready
-          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.profile_env_${newSlot}=kubernetes --set microservice.current_environment_${newSlot}=prod --set microservice.image.repository_${newSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${newSlot}=1.${{ github.run_number }} --reuse-values
-
-          if ! kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${newSlot} -n ${{env.NAMESPACE}} --timeout=180s; then
-            echo "Deployment failed. Starting rollback..."
-            helm rollback "${{env.APP_NAME_SHORT}}"  # This rolls back to the previous revision
-            exit 1
-          fi
-
-          # Swap selectors to direct production traffic to the new version (newSlot)
-          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --reuse-values
-
-          # Fetch the current selector for the production service and compare it to the desired state
-          CURRENT_SELECTOR=$(kubectl get svc "${{env.APP_NAME_SHORT}}-prod" -n ${{env.NAMESPACE}} -o=jsonpath='{.spec.selector.slot}')
-
-          if [[ "$CURRENT_SELECTOR" == *"${newSlot}"* ]]; then
-            echo "Service selector updated successfully."
-          else
-            echo "Service selector not updated. Starting rollback..."
-            CURRENT_REVISION=$(helm history ${{env.APP_NAME_SHORT}} --max 1 --output json | jq '.[0].revision')
-
-            # Calculate the target revision for rolling back 2 versions
-            TARGET_REVISION=$((CURRENT_REVISION - 2))
-
-            # Perform the rollback
-            helm rollback "${{env.APP_NAME_SHORT}}" $TARGET_REVISION
-            exit 1
-          fi
-
-          # Update the old version (oldSlot) to the stage configuration and with new app version, next wait for it to become ready
-          helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set microservice.profile_env_${oldSlot}=kubernetes-stage --set microservice.current_environment_${oldSlot}=stage --set microservice.image.repository_${oldSlot}=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag_${oldSlot}=1.${{ github.run_number }} --reuse-values
-
-          if ! kubectl rollout status deployment/${{env.APP_NAME_SHORT}}-${oldSlot} -n ${{env.NAMESPACE}} --timeout=180s; then
-            echo "Deployment failed. Starting rollback..."
-            CURRENT_REVISION=$(helm history ${{env.APP_NAME_SHORT}} --max 1 --output json | jq '.[0].revision')
-
-            # Calculate the target revision for rolling back 3 versions
-            TARGET_REVISION=$((CURRENT_REVISION - 3))
-
-            # Perform the rollback
-            helm rollback "${{env.APP_NAME_SHORT}}" $TARGET_REVISION
-            exit 1
-          fi
+        env:
+          DEPLOY_ONLY: "false"
+          NAMESPACE: ${{env.NAMESPACE}}
+          ECR_REGISTRY: ${{ steps.login-ecr-private.outputs.registry }}
+          ECR_REPO_NAME: ${{env.ECR_REPO_NAME}}
+          REPOSITORY_TAG: ${{github.run_number}}
+          APP_NAME_SHORT: ${{env.APP_NAME_SHORT}}
+        run: ./scripts/frontendBlueGreenDeployment.sh
 
       - name: Notify Slack on Failure
         if: failure()
@@ -445,87 +358,81 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
 
-      # - name: Cleanup Old slot
-      #   run: |
-      #     deploymentOption=$oldSlot.enabled=false
-      #     echo $deploymentOption
-      #     helm upgrade ${{env.APP_NAME_SHORT}} ./kubernetes/helm/app/${{env.APP_NAME_SHORT}} --set $deploymentOption --set microservice.image.repository=${{ steps.login-ecr-private.outputs.registry }}/${{env.ECR_REPO_NAME}} --set microservice.image.tag=1.${{ github.run_number }} --reuse-values
+  zap-scan:
+    runs-on: ubuntu-latest
+    needs: deployment
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  # zap-scan:
-  #   runs-on: ubuntu-latest
-  #   needs: deployment
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.9.0
+        with:
+          target: "https://prod.devopshub.org"
+          allow_issue_writing: false
 
-  #     - name: ZAP Scan
-  #       uses: zaproxy/action-full-scan@v0.9.0
-  #       with:
-  #         target: "https://prod.devopshub.org"
-  #         allow_issue_writing: false
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: workflow,job,commit,repo,ref,author,took
+          custom_payload: |
+            {
+              "attachments": [{
+                "color": "danger",
+                "text": "Job for ${{ env.APP_NAME_SHORT }} failed :x:"
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
 
-  #     - name: Notify Slack on Failure
-  #       if: failure()
-  #       uses: 8398a7/action-slack@v3
-  #       with:
-  #         status: custom
-  #         fields: workflow,job,commit,repo,ref,author,took
-  #         custom_payload: |
-  #           {
-  #             "attachments": [{
-  #               "color": "danger",
-  #               "text": "Job for ${{ env.APP_NAME_SHORT }} failed :x:"
-  #             }]
-  #           }
-  #       env:
-  #         SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
+  cypress-run:
+    runs-on: ubuntu-latest
+    needs: zap-scan
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  # cypress-run:
-  #   runs-on: ubuntu-latest
-  #   needs: zap-scan
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
+      - name: Install Dependencies
+        run: cd cypress && npm install
 
-  #     - name: Install Dependencies
-  #       run: cd cypress && npm install
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          wait-on-timeout: 10
+          config: video=false
+          browser: chrome
+          working-directory: cypress
 
-  #     - name: Cypress run
-  #       uses: cypress-io/github-action@v6
-  #       with:
-  #         wait-on-timeout: 10
-  #         config: video=false
-  #         browser: chrome
-  #         working-directory: cypress
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: workflow,job,commit,repo,ref,author,took
+          custom_payload: |
+            {
+              "attachments": [{
+                "color": "danger",
+                "text": "Job for ${{ env.APP_NAME_SHORT }} failed :x:"
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
 
-  #     - name: Notify Slack on Failure
-  #       if: failure()
-  #       uses: 8398a7/action-slack@v3
-  #       with:
-  #         status: custom
-  #         fields: workflow,job,commit,repo,ref,author,took
-  #         custom_payload: |
-  #           {
-  #             "attachments": [{
-  #               "color": "danger",
-  #               "text": "Job for ${{ env.APP_NAME_SHORT }} failed :x:"
-  #             }]
-  #           }
-  #       env:
-  #         SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
-
-  #     - name: Notify Slack on Success
-  #       if: success()
-  #       uses: 8398a7/action-slack@v3
-  #       with:
-  #         status: custom
-  #         fields: workflow,job,commit,repo,ref,author,took
-  #         custom_payload: |
-  #           {
-  #             "attachments": [{
-  #               "color": "good",
-  #               "text": "Pipeline for ${{ env.APP_NAME_SHORT }} succeeded :white_check_mark:"
-  #             }]
-  #           }
-  #       env:
-  #         SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
+      - name: Notify Slack on Success
+        if: success()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: workflow,job,commit,repo,ref,author,took
+          custom_payload: |
+            {
+              "attachments": [{
+                "color": "good",
+                "text": "Pipeline for ${{ env.APP_NAME_SHORT }} succeeded :white_check_mark:"
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
