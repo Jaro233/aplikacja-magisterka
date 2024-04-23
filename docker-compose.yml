@@ -112,14 +112,14 @@ services:
     ports:
       - 8080:8080
 
-  tracing-server:
-    image: openzipkin/zipkin
-    container_name: tracing-server
-    mem_limit: 1000M
-    environment:
-      - JAVA_OPTS=-XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom
-    ports:
-      - 9411:9411
+  # tracing-server:
+  #   image: openzipkin/zipkin
+  #   container_name: tracing-server
+  #   mem_limit: 1000M
+  #   environment:
+  #     - JAVA_OPTS=-XX:+UnlockExperimentalVMOptions -Djava.security.egd=file:/dev/./urandom
+  #   ports:
+  #     - 9411:9411
 
   ## Grafana / Prometheus
 

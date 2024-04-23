@@ -6,7 +6,7 @@ DOCKERIZE_VERSION="v0.7.0"
 REPOSITORY_PREFIX="j4ro123"
 
 # Define a list of your microservices directories
-microservices=("spring-petclinic-admin-server" "spring-petclinic-api-gateway" "spring-petclinic-config-server" "spring-petclinic-customers-service" "spring-petclinic-discovery-server" "spring-petclinic-vets-service" "spring-petclinic-visits-service")
+microservices=("spring-petclinic-api-gateway" "spring-petclinic-config-server" "spring-petclinic-customers-service" "spring-petclinic-vets-service" "spring-petclinic-visits-service")
 
 # Loop through each microservice directory
 for service in "${microservices[@]}"; do

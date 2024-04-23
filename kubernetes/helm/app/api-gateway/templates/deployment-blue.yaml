@@ -37,17 +37,21 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: {{.Values.microservice.profile_env_blue}}
+        {{- if .Values.microservice.livenessProbe.enabled }}
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: {{ .Values.microservice.containerPort }}
-            initialDelaySeconds: 90
-            periodSeconds: 5
+            initialDelaySeconds: {{ .Values.microservice.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.microservice.livenessProbe.periodSeconds }}
+          {{- end }}
+          {{- if .Values.microservice.readinessProbe.enabled }}
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: {{ .Values.microservice.containerPort }}
-            initialDelaySeconds: 15
+            initialDelaySeconds: {{ .Values.microservice.readinessProbe.initialDelaySeconds }}
+          {{- end }}
           lifecycle:
             preStop:
               exec:

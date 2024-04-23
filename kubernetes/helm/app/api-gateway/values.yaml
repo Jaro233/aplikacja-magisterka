@@ -13,6 +13,13 @@ microservice:
     requests:
       cpu: 600m
       memory: 1Gi
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 90
+    periodSeconds: 5
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 15
   profile_env_blue: kubernetes
   profile_env_green: kubernetes-stage
   uri: api-gateway.spring-petclinic.svc.cluster.local
