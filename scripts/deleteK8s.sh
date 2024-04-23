@@ -5,12 +5,12 @@ action_helm="uninstall"
 
 # Uninstall logging
 helm ${action_helm} kibana -n logging
-helm ${action_helm} fluentbit
-helm ${action_helm} elasticsearch
+helm ${action_helm} fluentbit -n logging
+helm ${action_helm} elasticsearch -n logging 
 
 # Uninstall monitoring
-helm ${action_helm} grafana
-helm ${action_helm} prometheus
+helm ${action_helm} grafana -n monitoring
+helm ${action_helm} prometheus -n monitoring
 
 # Delete ingress and cluster resources in the init-ingress-and-cluster directory
 echo "Deleting ingress and clusterissuer resources in init-ingress-and-clusterissuer directory..."

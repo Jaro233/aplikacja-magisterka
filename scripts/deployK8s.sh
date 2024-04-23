@@ -41,12 +41,12 @@ kubectl ${action_kubectl} -f init-ingress-and-clusterissuer/clusterissuer.yaml
 kubectl ${action_kubectl} -f init-ingress-and-clusterissuer/ingress.yaml
 
 # Deploy monitoring
-helm ${action_helm} prometheus prometheus-community/prometheus -f helm/monitoring/prometheus/values.yaml
-helm ${action_helm} grafana grafana/grafana -f helm/monitoring/grafana/values.yaml
+helm ${action_helm} prometheus prometheus-community/prometheus -f helm/monitoring/prometheus/values.yaml -n monitoring
+helm ${action_helm} grafana grafana/grafana -f helm/monitoring/grafana/values.yaml -n monitoring
 
 # Deploy logging
-helm ${action_helm} elasticsearch bitnami/elasticsearch -f helm/logging/elasticsearch/values.yaml
-helm ${action_helm} fluentbit helm/logging/fluentbit
+helm ${action_helm} elasticsearch bitnami/elasticsearch -f helm/logging/elasticsearch/values.yaml -n logging 
+helm ${action_helm} fluentbit helm/logging/fluentbit -n logging 
 helm ${action_helm} kibana bitnami/kibana -f helm/logging/kibana/values.yaml -n logging
 
 echo "Deployment completed."
