@@ -9,7 +9,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: "prod.devopshub.org"
+    - host: "www.devopshub.org"
       http:
         paths:
           - pathType: Prefix

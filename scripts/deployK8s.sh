@@ -26,14 +26,18 @@ helm install cert-manager jetstack/cert-manager --namespace cert-manager --set i
 
 # Deploy nginx-ingress controller
 echo "Deploying nginx-ingress controller..."
-helm install ingress-nginx ingress-nginx/ingress-nginx --set controller.replicaCount=2  --namespace ingress-nginx
+helm ${action_helm} ingress-nginx ingress-nginx/ingress-nginx -f helm/ingress-nginx/values.yaml --namespace ingress-nginx
 
-Deploy microservices
+# Deploy microservices
 echo "Deploying app..."
 helm ${action_helm} api-gateway helm/app/api-gateway 
 helm ${action_helm} customers-service helm/app/customers-service 
 helm ${action_helm} vets-service helm/app/vets-service 
 helm ${action_helm} visits-service helm/app/visits-service 
+
+# Deploy ConfigMaps and roles in the init-confimap-and-roles directory
+echo "Deploying autoscaling for app.."
+kubectl ${action_kubectl} -f init-autoscaling/
 
 # Deploy ingress and cluster resources in the init-ingress-and-cluster directory
 echo "Deploying ingress and clusterissuer resources in init-ingress-and-clusterissuer directory..."

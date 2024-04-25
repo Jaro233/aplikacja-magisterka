@@ -16,7 +16,7 @@ helm ${action_helm} prometheus -n monitoring
 echo "Deleting ingress and clusterissuer resources in init-ingress-and-clusterissuer directory..."
 kubectl ${action_kubectl}  -f init-ingress-and-clusterissuer/
 
-# Undeploy app
+# Uninstall app
 helm ${action_helm} visits-service
 helm ${action_helm} vets-service 
 helm ${action_helm} customers-service
