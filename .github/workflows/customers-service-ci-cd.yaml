@@ -295,10 +295,10 @@ jobs:
           ECR_REPO_NAME: ${{env.ECR_REPO_NAME}}
           REPOSITORY_TAG: ${{github.run_number}}
           APP_NAME_SHORT: ${{env.APP_NAME_SHORT}}
-        run: ./scripts/backendBlueGreenDeployment.sh
+        run: bash ./scripts/backendBlueGreenDeployment.sh
 
       - name: Check if all stage pods are running
-        run: ./scripts/checkAllStagePodsRunning.sh
+        run: bash ./scripts/checkAllStagePodsRunning.sh
 
       - name: Run Integration Tests
         uses: cypress-io/github-action@v6
@@ -320,7 +320,7 @@ jobs:
           ECR_REPO_NAME: ${{env.ECR_REPO_NAME}}
           REPOSITORY_TAG: ${{github.run_number}}
           APP_NAME_SHORT: ${{env.APP_NAME_SHORT}}
-        run: ./scripts/backendBlueGreenDeployment.sh
+        run: bash ./scripts/backendBlueGreenDeployment.sh
 
       - name: Notify Slack on Failure
         if: failure()
