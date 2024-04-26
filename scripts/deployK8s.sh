@@ -13,9 +13,9 @@ kubectl ${action_kubectl}  -f init-secrets/
 
 # Deploy ConfigMaps and roles in the init-confimap-and-roles directory
 echo "Deploying ConfigMaps and roles in init-confimap-and-roles directory..."
-kubectl ${action_kubectl}  -f init-configmap-and-role/
+kubectl ${action_kubectl} -f init-configmap-and-role/
 
-# # Deploy db
+# Deploy db
 echo "Deploying db..."
 helm install mysql-prod helm/db -n prod-db
 helm install mysql-stage helm/db -n stage-db
@@ -35,8 +35,12 @@ helm ${action_helm} customers-service helm/app/customers-service
 helm ${action_helm} vets-service helm/app/vets-service 
 helm ${action_helm} visits-service helm/app/visits-service 
 
-# Deploy ConfigMaps and roles in the init-confimap-and-roles directory
-echo "Deploying autoscaling for app.."
+# Deploy metrics-server
+echo "Deploying metrics-server..."
+helm install metrics-server metrics-server/metrics-server --set replicas=2 --namespace metrics-server
+
+# Deploy autoscaling
+echo "Deploying autoscaling..."
 kubectl ${action_kubectl} -f init-autoscaling/
 
 # Deploy ingress and cluster resources in the init-ingress-and-cluster directory

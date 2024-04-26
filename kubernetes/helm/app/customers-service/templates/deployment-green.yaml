@@ -15,6 +15,7 @@ spec:
   selector:
     matchLabels:
       app: {{.Values.microservice.name}}
+      slot: green
   template:
     metadata:
       labels:

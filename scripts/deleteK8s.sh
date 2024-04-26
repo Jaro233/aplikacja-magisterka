@@ -16,6 +16,12 @@ helm ${action_helm} prometheus -n monitoring
 echo "Deleting ingress and clusterissuer resources in init-ingress-and-clusterissuer directory..."
 kubectl ${action_kubectl}  -f init-ingress-and-clusterissuer/
 
+# Uninstall autoscaling
+kubectl ${action_kubectl} -f init-autoscaling/
+
+# Uninstall metrics-server
+helm ${action_helm} metrics-server --namespace metrics-server
+
 # Uninstall app
 helm ${action_helm} visits-service
 helm ${action_helm} vets-service 
