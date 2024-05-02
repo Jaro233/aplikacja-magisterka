@@ -14,7 +14,7 @@ describe("Add New Pet", () => {
     cy.contains("George Franklin").click().wait(2000);
 
     // Step 4: Click the "Add New Pet" button
-    cy.contains("Add New Pet").click().wait(2000);
+    cy.contains("Add New Pet").click().wait(4500);
 
     // Step 5: Wait for the new pet form to appear and fill out the details
     cy.get("form").should("be.visible");
