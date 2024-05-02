@@ -62,7 +62,7 @@ else
   # Update the old version (oldSlot) to the stage configuration and wait for it to become ready
   helm upgrade "${APP_NAME_SHORT}" ./kubernetes/helm/app/"${APP_NAME_SHORT}" --set database.uri_env_${oldSlot}=mysql-stage.stage-db --set microservice.current_environment_${oldSlot}=stage --set microservice.image.repository_${oldSlot}=${ECR_REGISTRY}/${ECR_REPO_NAME} --set microservice.image.tag_${oldSlot}=1.${REPOSITORY_TAG} --reuse-values --reuse-values
   
-  if ! kubectl rollout status deployment/${APP_NAME_SHORT}-${oldSlot} -n ${NAMESPACE} --timeout=180s; then
+  if ! kubectl rollout status deployment/${APP_NAME_SHORT}-${oldSlot} -n ${NAMESPACE} --timeout=270s; then
     echo "Deployment failed. Starting rollback..."
     CURRENT_REVISION=$(helm history ${APP_NAME_SHORT} --max 1 --output json | jq '.[0].revision')
 
