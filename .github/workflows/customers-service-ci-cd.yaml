@@ -252,9 +252,12 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
 
   deployment:
+    concurrency:
+      group: deployment-${{ github.ref }}
+      cancel-in-progress: false
     runs-on: ubuntu-latest
-    # needs: docker_image_scanning
-    needs: build_and_push
+    needs: docker_image_scanning
+    # needs: build_and_push
     permissions:
       issues: write
     steps:
