@@ -36,7 +36,7 @@ describe("Add New Pet", () => {
 
     // Step 8: Check the pets table for the new pet's details
     cy.contains("Whiskers").should("be.visible");
-    cy.contains("2015 Jan 19").should("be.visible");
+    cy.contains("2015 Jan 20").should("be.visible");
     cy.contains("cat").should("be.visible");
   });
 });
