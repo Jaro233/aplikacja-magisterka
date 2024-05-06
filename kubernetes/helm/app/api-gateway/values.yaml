@@ -7,12 +7,12 @@ microservice:
   current_environment_blue: prod
   current_environment_green: stage
   resources:
-    limits:
-      memory: 500Mi
-      cpu: 300m
     requests:
-      cpu: 300m
-      memory: 500Mi
+      cpu: "450m"
+      memory: "400Mi"
+    limits:
+      cpu: "650m"
+      memory: "600Mi"
   livenessProbe:
     enabled: true
     initialDelaySeconds: 90

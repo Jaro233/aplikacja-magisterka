@@ -39,6 +39,10 @@ helm ${action_helm} visits-service helm/app/visits-service
 echo "Deploying metrics-server..."
 helm install metrics-server metrics-server/metrics-server --set replicas=2 --namespace metrics-server
 
+# Deploy vpa crds
+echo "Deploy vpa crds..."
+helm install my-vpa fairwinds-stable/vpa --version 4.4.6
+
 # Deploy autoscaling
 echo "Deploying autoscaling..."
 kubectl ${action_kubectl} -f init-autoscaling/
