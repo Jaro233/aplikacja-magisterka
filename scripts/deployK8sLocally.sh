@@ -22,7 +22,7 @@ helm ${action_helm} mysql-stage helm/db -f ./helm/db/values.yaml --set primary.r
 
 # Deploy cert-manager
 echo "Deploying cert-manager..."
-helm install cert-manager jetstack/cert-manager --namespace cert-manager --set installCRDs=true
+helm install cert-manager cert-manager/cert-manager --namespace cert-manager --set installCRDs=true
 
 # Deploy nginx-ingress controller
 echo "Deploying nginx-ingress controller..."
@@ -97,7 +97,14 @@ helm delete grafana -n monitoring
 helm delete prometheus -n monitoring
 helm delete metrics-server -n metrics-server
 
-sleep 10
+# Lower cpu in microservices
+echo "Deploying app..."
+helm upgrade api-gateway helm/app/api-gateway -f ./helm/app/api-gateway/values.yaml --set microservice.resources.limits.cpu=200m --set microservice.resources.requests.cpu=200m --set microservice.livenessProbe.enabled=false --set microservice.readinessProbe.enabled=false --set green.enabled=false
+helm upgrade customers-service helm/app/customers-service -f ./helm/app/customers-service/values.yaml --set microservice.resources.limits.cpu=200m --set microservice.resources.requests.cpu=200m --set microservice.livenessProbe.enabled=false --set microservice.readinessProbe.enabled=false --set green.enabled=false
+helm upgrade vets-service helm/app/vets-service -f ./helm/app/vets-service/values.yaml --set microservice.resources.limits.cpu=200m --set microservice.resources.requests.cpu=200m --set microservice.livenessProbe.enabled=false --set microservice.readinessProbe.enabled=false --set green.enabled=false
+helm upgrade visits-service helm/app/visits-service -f ./helm/app/visits-service/values.yaml --set microservice.resources.limits.cpu=200m --set microservice.resources.requests.cpu=200m --set microservice.livenessProbe.enabled=false --set microservice.readinessProbe.enabled=false --set green.enabled=false
+
+sleep 80
 
 # Deploy logging
 helm ${action_helm} elasticsearch bitnami/elasticsearch -f ./helm/logging/elasticsearch/values.yaml --set master.replicaCount=1 --set data.replicaCount=1 --set coordinating.replicaCount=1 --set ingest.replicaCount=1 -n logging 

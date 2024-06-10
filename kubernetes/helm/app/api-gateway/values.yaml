@@ -1,3 +1,9 @@
+green:
+  enabled: true
+
+blue:
+  enabled: true
+
 productionSlot: blue
 
 microservice:

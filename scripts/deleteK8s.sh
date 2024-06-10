@@ -20,10 +20,10 @@ kubectl ${action_kubectl}  -f init-ingress-and-clusterissuer/
 kubectl ${action_kubectl} -f init-autoscaling/
 
 # Uninstall vpa crds
-helm ${action_helm} my-vpa fairwinds-stable/vpa --version 4.4.6
+helm ${action_helm} my-vpa fairwinds-stable/vpa
 
 # Uninstall metrics-server
-helm ${action_helm} metrics-server --namespace metrics-server
+helm ${action_helm} metrics-server -n metrics-server
 
 # Uninstall app
 helm ${action_helm} visits-service

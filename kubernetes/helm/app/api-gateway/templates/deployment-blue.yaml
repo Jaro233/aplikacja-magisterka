@@ -1,3 +1,4 @@
+{{ if .Values.blue.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -57,3 +58,4 @@ spec:
             preStop:
               exec:
                 command: ["sh", "-c", "sleep 10"]
+{{ end }}

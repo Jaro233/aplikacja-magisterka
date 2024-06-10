@@ -4,6 +4,11 @@ spring:
       uri: http://localhost:8888
   application:
     name: customers-service
+management:
+  metrics:
+    export:
+      wavefront:
+        enabled: false
 ---
 spring:
   config:
@@ -12,6 +17,11 @@ spring:
   cloud:
     config:
       uri: http://config-server:8888
+management:
+  metrics:
+    export:
+      wavefront:
+        enabled: false
 ---
 spring:
   config:
@@ -31,6 +41,10 @@ management:
   endpoint:
     restart:
       enabled: true
+  metrics:
+    export:
+      wavefront:
+        enabled: false
 ---
 spring:
   config:
@@ -50,4 +64,8 @@ management:
   endpoint:
     restart:
       enabled: true
+  metrics:
+    export:
+      wavefront:
+        enabled: false
 # test

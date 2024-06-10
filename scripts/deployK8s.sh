@@ -22,7 +22,7 @@ helm install mysql-stage helm/db -n stage-db
 
 # Deploy cert-manager
 echo "Deploying cert-manager..."
-helm install cert-manager jetstack/cert-manager --namespace cert-manager --set installCRDs=true
+helm install cert-manager cert-manager/cert-manager --namespace cert-manager --set installCRDs=true
 
 # Deploy nginx-ingress controller
 echo "Deploying nginx-ingress controller..."
